@@ -1,4 +1,7 @@
 # 333
 # 3w3d i3a23 readme
 ***
-this is a *[INDEX] (index.html)*
+
+![TO repo home](https://kaichelin.github.io/JStest/)
+
+<a href="mailto:kaichelin@gmail.com">to my mail</a>
