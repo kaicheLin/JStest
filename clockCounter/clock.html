@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<style>
+    #info {
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        color: #ffff00
+    }
+
+    body {
+        overflow: hidden;
+    }
+
+    #infopic {
+        position: absolute;
+        top: 0px;
+        margin-left: 70%;
+        width: 25%;
+        padding: 10px;
+        text-align: center;
+        color: #ffff00
+    }
+
+    body {
+        overflow: hidden;
+    }
+</style>
+
+<body>
+
+    <div id="info">Clock countdown<br>
+        <button class="check-buttom" id="start">START</button>
+        <button class="check-buttom" id="pinStyle">QUARTZ</button>
+        <button class="check-buttom" id="resetTime">TO ZERO</button>
+        <button class="check-buttom" id="toggle">TOGGLE +10s</button>
+    </div>
+
+    <div id="infopic">EX picture<br>
+        <img src="../picture/clockImage.jpg">
+    </div>
+
+    <audio id="musicplay" style="display:none">
+        <source src="../music/W_sound4.wav" type='audio/wav'>
+    </audio>
+
+</body>
+
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://threejs.org/build/three.min.js"></script>
+<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+
+
+<script>
+
+    var camera, scene, renderer;
+    var timeCounter = 0;
+    var angle = 0;
+    var turn = false;
+    var sound = false;
+    var quartz = true;
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    let start = document.getElementById("start");
+    start.onclick = function () {
+        // 按下button
+
+        if (start.innerHTML == "START") {
+            start.innerHTML = "STOP";
+            turn = true;
+            sound = true;
+        } else {
+            start.innerHTML = "START";
+            turn = false;
+        }
+    }
+
+    let resetTime = document.getElementById("resetTime");
+    resetTime.onclick = function () {
+        // 按下button
+        setTime(0);
+    }
+
+    let pinStyle = document.getElementById("pinStyle");
+    pinStyle.onclick = function () {
+        // 按下button
+        if (pinStyle.innerHTML == "QUARTZ") {
+            pinStyle.innerHTML = "continuous";
+            quartz = false;
+        } else {
+            pinStyle.innerHTML = "QUARTZ";
+            quartz = true;
+        }
+        setTime(0);
+    }
+
+    let toggle = document.getElementById("toggle");
+    toggle.onclick = function () {
+        // 按下button
+        addTime(10);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    init();
+    objectInScene();
+    animate();
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x888888);
+        document.body.appendChild(renderer.domElement);
+
+        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1000);
+        camera.position.z = 300;
+        let controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        ////////////////////////////////////////////////////////
+
+
+    }
+
+    function objectInScene() {
+
+        var gridXZ = new THREE.GridHelper(200, 20, 'red', 'white');
+
+        var group = new THREE.Group();
+        clockPin = new THREE.Group();
+
+        var clockOut = new THREE.Mesh(new THREE.TorusKnotGeometry(25, 1, 64, 8, 1, 0), new THREE.MeshBasicMaterial({
+            color: 0xDDA0DD
+        }));
+
+        var clock0s1 = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshNormalMaterial());
+        var clock0s2 = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshNormalMaterial());
+        var clock0s3 = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshNormalMaterial());
+        var clock0s4 = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshNormalMaterial());
+
+        clock0s1.position.set(-2, 35, 0);
+        clock0s2.position.set(-2, 35, 0);
+        clock0s3.position.set(0, 35, 0);
+        clock0s4.position.set(2, 35, 0);
+
+        clock0s1.rotation.z = Math.PI / 6;
+        clock0s2.rotation.z = -Math.PI / 6;
+
+        var clock3s1 = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshNormalMaterial());
+        var clock3s2 = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshNormalMaterial());
+        var clock3s3 = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshNormalMaterial());
+
+        clock3s1.position.set(35, -2, 0);
+        clock3s2.position.set(35, 0, 0);
+        clock3s3.position.set(35, 2, 0);
+
+        clock3s1.rotation.z = Math.PI / 2;
+        clock3s2.rotation.z = Math.PI / 2;
+        clock3s3.rotation.z = Math.PI / 2;
+
+        var clock6s1 = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshNormalMaterial());
+        var clock6s2 = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshNormalMaterial());
+        var clock6s3 = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshNormalMaterial());
+
+        clock6s1.position.set(3, -35, 0);
+        clock6s2.position.set(1, -35, 0);
+        clock6s3.position.set(-2, -35, 0);
+
+        clock6s1.rotation.z = Math.PI / 12;
+        clock6s2.rotation.z = -Math.PI / 12;
+
+        var clock9s1 = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshNormalMaterial());
+        var clock9s2 = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshNormalMaterial());
+        var clock9s3 = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1), new THREE.MeshNormalMaterial());
+
+        clock9s1.position.set(-35, -1.5, 0);
+        clock9s2.position.set(-35, 1.5, 0);
+        clock9s3.position.set(-35, 1.5, 0);
+
+        clock9s1.rotation.z = Math.PI / 2;
+        clock9s2.rotation.z = (Math.PI / 2) - (Math.PI / 6);
+        clock9s3.rotation.z = (Math.PI / 2) + (Math.PI / 6);
+
+        var clockPlane1 = new THREE.Mesh(new THREE.RingGeometry(5, 15, 50), new THREE.MeshBasicMaterial({
+            color: 0x008888,
+            side: THREE.DoubleSide
+        }));
+
+        var clockPlane2 = new THREE.Mesh(new THREE.RingGeometry(0, 5, 50), new THREE.MeshBasicMaterial({
+            color: 0x0000ff,
+            side: THREE.DoubleSide
+        }));
+
+        var clockPin1 = new THREE.Mesh(new THREE.CylinderGeometry(0, 1.5, 10, 20), new THREE.MeshNormalMaterial());
+        clockPin1.position.set(0, 20, 0);
+
+        var geometry = new THREE.BufferGeometry();
+        var indices = [];
+        var vertices = [];
+        var colors = [];
+        vertices.push(0, 9, 0,  2, 3, 0,  0, 5, 1,  -2, 3, 0,  0, 5, -1);
+        indices.push(0, 1, 2,  0, 2, 3,  0, 3, 4,  0, 4, 1);
+        colors.push(1, 0, 0,  1, 0, 0,  1, 0, 0,  1, 0, 0,  1, 0, 0);
+        geometry.setIndex(indices);
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        geometry.computeVertexNormals();
+        let material = new THREE.MeshBasicMaterial({
+            vertexColors: true,
+            side: THREE.DoubleSide
+        });
+        let clockPin2 = new THREE.Mesh(geometry, material);
+
+        group.add(clockOut, clockPlane1, clockPlane2);
+        group.add(clock0s1, clock0s2, clock0s3, clock0s4);
+        group.add(clock3s1, clock3s2, clock3s3);
+        group.add(clock6s1, clock6s2, clock6s3);
+        group.add(clock9s1, clock9s2, clock9s3);
+
+        clockPin.add(clockPin1, clockPin2, new THREE.AxesHelper(20));
+
+        group.position.set(0, 40, 0);
+        scene.add(gridXZ, group, clockPin);
+
+
+    }
+
+    function animate() {
+
+        window.setTimeout(animate, 50);
+
+        if (angle <= 0) {
+            angle = 0;
+            if (sound) makeSound();
+        }
+
+
+        if (quartz) {
+            if (turn) timeCounter += 50;
+
+            if (timeCounter >= 1000) {
+                timeCounter -= 1000;
+                angle -= 2 * Math.PI / 60;
+                if (angle >= 2 * Math.PI) angle -= 2 * Math.PI;
+            }
+        } else {
+            if (timeCounter >= 1000) timeCounter -= 1000;
+            if (turn) angle -= 2 * Math.PI / 60 / 1000 * 50;
+            if (angle >= 2 * Math.PI) angle -= 2 * Math.PI;
+        }
+
+        console.log(timeCounter, angle);
+
+        renderer.render(scene, camera);
+
+        clockPin.position.set(5 * Math.cos(angle - Math.PI / 2), 40 - 5 * Math.sin(angle - Math.PI / 2), 0);
+        clockPin.rotation.z = -angle;
+
+    }
+
+    function setTime(second) {
+        if (second == 0) timeCounter = 0;
+        turn = false;
+        start.innerHTML = "START";
+        sound = false;
+        angle = second * Math.PI / 30;
+    }
+
+    function addTime(second) {
+        angle += second * Math.PI / 30;
+        turn = false;
+        start.innerHTML = "START";
+        sound = false;
+    }
+
+    function makeSound() {
+
+        console.log("sound !!! ");
+
+        let musicplay = document.getElementById("musicplay");
+        musicplay.play();
+
+        turn = false;
+        sound = false;
+        start.innerHTML = "START";
+    }
+
+</script>
+
+</html>
