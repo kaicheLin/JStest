@@ -94,6 +94,8 @@
         //spotlight
         spotLight = new THREE.SpotLight(0xffffff);
         spotLight.angle = Math.PI / 16;
+        spotLight.penumbra = 0.5;
+        spotLight.decay = 0.5;
         spotLight.position.set(0, 100, 0);
         spotLight.target = car;
         scene.add(spotLight);
