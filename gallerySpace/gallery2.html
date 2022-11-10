@@ -94,7 +94,16 @@
             this.spotLightHelper = new THREE.SpotLightHelper(this.spotLight);
 
             this.cylinderGeometry = new THREE.Mesh(new THREE.CylinderGeometry(0, 5, 20, 32), new THREE.MeshNormalMaterial());
+            this.cylinderGeometry.rotation.x = Math.PI / 2;
 
+            var camp = new THREE.LatheGeometry();
+            camp.segments = 30;
+            camp.phiStart = 2 * Math.PI;
+            camp.phiLength = 2 * Math.PI;
+            this.latheGeometry = new THREE.Mesh(camp, new THREE.MeshNormalMaterial());
+            this.latheGeometry.rotation.x = Math.PI / 2;
+
+            this.group.add(this.cylinderGeometry, this.latheGeometry);
             gallery.add(this.spotLight, this.spotLightHelper, this.group);
         }
 
@@ -106,8 +115,6 @@
 
         setLookAt(theObject) {
             this.target = theObject;
-            this.cylinderGeometry.rotation.x = Math.PI / 2;
-            this.group.add(this.cylinderGeometry);
         }
 
         doUpDate() {
@@ -423,6 +430,51 @@
 
         paintingArray[17].position.set(1700, 60, 989.9);
 
+        // chair...
+        ////////////////////////////////////////////////////////////////////////////////////
+        var chair1 = creatChair(2);
+        chair1.position.set(400, 0, 350);
+
+        var chair2 = creatChair(1.5);
+        chair2.position.set(600, 0, 350);
+
+        var chair3 = creatChair(5.5);
+        chair3.position.set(500, 0, 650);
+        chair3.rotation.y = Math.PI;
+
+        var chair4 = creatChair(1);
+        chair4.position.set(1850, 0, 850);
+        chair4.rotation.y = Math.PI / 2;
+
+        var chair5 = creatChair(1);
+        chair5.position.set(1550, 0, 150);
+        chair5.rotation.y = -Math.PI / 2;
+
+        gallery.add(chair1, chair2, chair3, chair4, chair5);
+
+        //panal... 
+        var dotPlaneMap = loader.load('../picture/dotPlane.jpg');
+
+        dotPlaneMap.wrapS = THREE.RepeatWrapping;
+        dotPlaneMap.wrapT = THREE.RepeatWrapping;
+        dotPlaneMap.repeat.set(2, 2);
+
+        var panal = new THREE.Mesh(new THREE.CylinderGeometry(150, 150, 30, 32), new THREE.MeshLambertMaterial({
+            map: dotPlaneMap
+        }));
+        panal.position.set(1200, 15, 500);
+
+        var onPanal1 = new THREE.Mesh(new THREE.TorusKnotGeometry(50, 2, 66, 9, 19, 20), new THREE.MeshLambertMaterial());
+        onPanal1.position.set(1200, 70, 500);
+        onPanal1.rotation.x = -Math.PI / 2;
+
+
+        var onPanal2 = new THREE.Mesh(new THREE.TorusKnotGeometry(50, 2, 66, 9, 30, 65), new THREE.MeshLambertMaterial());
+        onPanal2.position.set(1600, 30, 500);
+        onPanal2.rotation.x = -Math.PI / 2;
+
+        gallery.add(panal, onPanal1, onPanal2);
+
         // spotLight...
         ////////////////////////////////////////////////////////////////////////////////////
         var spotLightArray = [];
@@ -453,33 +505,26 @@
         spotLightArray[16].setPosition(1850, 100, 850);
         spotLightArray[17].setPosition(1700, 100, 850);
 
-        // chair...
-        ////////////////////////////////////////////////////////////////////////////////////
-        var chair1 = creatChair(2);
-        chair1.position.set(400, 0, 350);
+        var planeLight1 = new SpotLightType();
+        planeLight1.setPosition(1050, 100, 350);
+        planeLight1.setLookAt(panal);
+        lightArray.push(planeLight1);
 
-        var chair2 = creatChair(1.5);
-        chair2.position.set(600, 0, 350);
+        var planeLight2 = new SpotLightType();
+        planeLight2.setPosition(1050, 100, 650);
+        planeLight2.setLookAt(panal);
+        lightArray.push(planeLight2);
 
-        var chair3 = creatChair(5.5);
-        chair3.position.set(500, 0, 650);
-        chair3.rotation.y = Math.PI;
+        var planeLight3 = new SpotLightType();
+        planeLight3.setPosition(1350, 100, 350);
+        planeLight3.setLookAt(panal);
+        lightArray.push(planeLight3);
 
-        var chair4 = creatChair(1);
-        chair4.position.set(1850, 0, 850);
-        chair4.rotation.y = Math.PI / 2;
+        var planeLight4 = new SpotLightType();
+        planeLight4.setPosition(1350, 100, 650);
+        planeLight4.setLookAt(panal);
+        lightArray.push(planeLight4);
 
-        var chair5 = creatChair(1);
-        chair5.position.set(1550, 0, 150);
-        chair5.rotation.y = -Math.PI / 2;
-
-        gallery.add(chair1, chair2, chair3, chair4, chair5);
-
-        //panal...
-        var panal = new THREE.Mesh(new THREE.CylinderGeometry(150, 150, 30, 32), new THREE.MeshLambertMaterial());
-        panal.position.set(1200, 15, 500);
-
-        gallery.add(panal);
     }
 
     testing();
