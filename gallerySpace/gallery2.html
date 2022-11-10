@@ -1,0 +1,443 @@
+<html>
+
+<body>
+
+    <div id="info">minimal three.js</div>
+    <script src="https://threejs.org/build/three.min.js"></script>
+    <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+</body>
+
+<style>
+    #info {
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        color: #ffff00
+    }
+
+    body {
+        overflow: hidden;
+    }
+</style>
+
+<script>
+
+    var camera, scene, renderer;
+    var gallery = new THREE.Group();
+    var time = 0;
+    var lightArray = [];
+
+    class WallType {
+
+        constructor(length = 100, width = 100, hight = 100) {
+            this.body = new THREE.Mesh(new THREE.BoxGeometry(length, width, hight), new THREE.MeshLambertMaterial({
+                color: 0x888888
+            }));
+            gallery.add(this.body);
+        }
+
+        setPosition(x = 0, y = 0, z = 0) {
+            this.body.position.set(x, y, z);
+        }
+
+    }
+
+    class SpotLightType {
+
+        constructor() {
+            this.target;
+            this.group = new THREE.Group();
+
+            this.spotLight = new THREE.SpotLight(0xffffff, 2, 200, Math.PI / 8, 0.5);
+
+            this.spotLightHelper = new THREE.SpotLightHelper(this.spotLight);
+
+            this.cylinderGeometry = new THREE.Mesh(new THREE.CylinderGeometry(0, 5, 20, 32), new THREE.MeshNormalMaterial());
+
+            gallery.add(this.spotLight, this.spotLightHelper, this.group);
+        }
+
+        setPosition(x = 0, y = 100, z = 0) {
+            this.spotLight.position.set(x, y, z);
+            this.group.position.set(x, y, z);
+            this.cylinderGeometry.position.set(0, 0, 0);
+        }
+
+        setLookAt(theObject) {
+            this.target = theObject;
+            this.cylinderGeometry.rotation.x = Math.PI / 2;
+            this.group.add(this.cylinderGeometry);
+        }
+
+        doUpDate() {
+            this.spotLight.target = this.target;
+            this.spotLightHelper.update();
+            this.group.lookAt(this.target.position);
+        }
+
+        turnOnOff() {
+            if (this.spotLight.intensity === 0) {
+                this.spotLight.intensity = 1;
+            }
+            else {
+                this.spotLight.intensity = 0;
+            }
+        }
+
+    }
+
+    class PointLightType {
+
+        constructor() {
+
+            this.pointLight = new THREE.PointLight(0xffffff, 0.8, 250, 0.5);
+            gallery.add(this.pointLight);
+
+            this.pointLightHelper = new THREE.PointLightHelper(this.pointLight, 10);
+            gallery.add(this.pointLightHelper);
+
+        }
+
+        setPosition(x = 0, y = 100, z = 0) {
+            this.pointLight.position.set(x, y, z);
+        }
+
+
+        doUpDate() {
+            this.pointLightHelper.update();
+
+        }
+
+        turnOnOff() {
+            if (this.pointLight.intensity === 0) {
+                this.pointLight.intensity = 1;
+            }
+            else {
+                this.pointLight.intensity = 0;
+            }
+        }
+
+    }
+
+    setUpGallery();
+    init();
+    animate();
+
+    function setUpGallery() {
+        // floor
+        ////////////////////////////////////////////////////////////////////////////////////
+        let texture = new THREE.TextureLoader().load('../picture/woodPlane.jpg');
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(10, 5);
+        floor = new THREE.Mesh(new THREE.PlaneGeometry(3000, 1500), new THREE.MeshBasicMaterial({
+            map: texture
+        }));
+        floor.position.set(1000, -0.1, 500);
+        floor.rotation.x = -Math.PI / 2;
+        gallery.add(floor);
+
+        // wall...
+        ////////////////////////////////////////////////////////////////////////////////////
+        // room-left-up
+        var walla1 = new WallType(1000, 100, 10);
+        walla1.setPosition(500, 50, 5);
+
+        var walla2 = new WallType(200, 100, 10);
+        walla2.setPosition(100, 50, 295);
+
+        var walla3 = new WallType(400, 100, 10);
+        walla3.setPosition(500, 50, 295);
+
+        var walla4 = new WallType(200, 100, 10);
+        walla4.setPosition(900, 50, 295);
+
+        var walla5 = new WallType(10, 100, 280);
+        walla5.setPosition(5, 50, 150);
+
+        var walla6 = new WallType(10, 100, 100);
+        walla6.setPosition(500, 50, 150);
+
+        var walla7 = new WallType(10, 100, 280);
+        walla7.setPosition(995, 50, 150);
+
+        // room-left-down
+        var wallb1 = new WallType(200, 100, 10);
+        wallb1.setPosition(100, 50, 705);
+
+        var wallb2 = new WallType(400, 100, 10);
+        wallb2.setPosition(500, 50, 705);
+
+        var wallb3 = new WallType(200, 100, 10);
+        wallb3.setPosition(900, 50, 705);
+
+        var wallb4 = new WallType(1000, 100, 10);
+        wallb4.setPosition(500, 50, 995);
+
+        var wallb5 = new WallType(10, 100, 280);
+        wallb5.setPosition(5, 50, 850);
+
+        var wallb6 = new WallType(10, 100, 100);
+        wallb6.setPosition(500, 50, 850);
+
+        var wallb7 = new WallType(10, 100, 280);
+        wallb7.setPosition(995, 50, 850);
+
+        // room-right-up
+        var wallc1 = new WallType(600, 100, 10);
+        wallc1.setPosition(1700, 50, 5);
+
+        var wallc2 = new WallType(200, 100, 10);
+        wallc2.setPosition(1500, 50, 295);
+
+        var wallc3 = new WallType(200, 100, 10);
+        wallc3.setPosition(1900, 50, 295);
+
+        var wallc4 = new WallType(10, 100, 280);
+        wallc4.setPosition(1405, 50, 150);
+
+        var wallc5 = new WallType(10, 100, 280);
+        wallc5.setPosition(1995, 50, 150);
+
+        // room-right-down
+        var walld1 = new WallType(200, 100, 10);
+        walld1.setPosition(1500, 50, 705);
+
+        var walld2 = new WallType(200, 100, 10);
+        walld2.setPosition(1900, 50, 705);
+
+        var walld3 = new WallType(600, 100, 10);
+        walld3.setPosition(1700, 50, 995);
+
+        var walld4 = new WallType(10, 100, 280);
+        walld4.setPosition(1405, 50, 850);
+
+        var walld5 = new WallType(10, 100, 280);
+        walld5.setPosition(1995, 50, 850);
+
+        // pointlight...
+        ////////////////////////////////////////////////////////////////////////////////////
+        var roadLight1 = new PointLightType();
+        roadLight1.setPosition(250, 0, 500);
+        lightArray.push(roadLight1);
+
+        var roadLight1a = new PointLightType();
+        roadLight1a.setPosition(250, 0, 150);
+        lightArray.push(roadLight1a);
+
+        var roadLight1b = new PointLightType();
+        roadLight1b.setPosition(250, 0, 850);
+        lightArray.push(roadLight1b);
+
+        var roadLight2 = new PointLightType();
+        roadLight2.setPosition(500, 0, 500);
+        lightArray.push(roadLight2);
+
+        var roadLight3 = new PointLightType();
+        roadLight3.setPosition(750, 0, 500);
+        lightArray.push(roadLight3);
+
+        var roadLight3a = new PointLightType();
+        roadLight3a.setPosition(750, 0, 150);
+        lightArray.push(roadLight3a);
+
+        var roadLight3b = new PointLightType();
+        roadLight3b.setPosition(750, 0, 850);
+        lightArray.push(roadLight3b);
+
+        var roadLight4 = new PointLightType();
+        roadLight4.setPosition(750, 0, 500);
+        lightArray.push(roadLight4);
+
+        var roadLight5 = new PointLightType();
+        roadLight5.setPosition(1000, 0, 500);
+        lightArray.push(roadLight5);
+
+        var roadLight6 = new PointLightType();
+        roadLight6.setPosition(1400, 0, 500);
+        lightArray.push(roadLight6);
+
+        var roadLight7 = new PointLightType();
+        roadLight7.setPosition(1700, 0, 500);
+        lightArray.push(roadLight7);
+
+        var roadLight7a = new PointLightType();
+        roadLight7a.setPosition(1700, 0, 150);
+        lightArray.push(roadLight7a);
+
+        var roadLight7b = new PointLightType();
+        roadLight7b.setPosition(1700, 0, 850);
+        lightArray.push(roadLight7b);
+
+        var roadLight8 = new PointLightType();
+        roadLight8.setPosition(1200, 0, 150);
+        lightArray.push(roadLight8);
+
+        var roadLight9 = new PointLightType();
+        roadLight9.setPosition(1200, 0, 300);
+        lightArray.push(roadLight9);
+
+        var roadLight10 = new PointLightType();
+        roadLight10.setPosition(1200, 0, 700);
+        lightArray.push(roadLight10);
+
+        var roadLight11 = new PointLightType();
+        roadLight11.setPosition(1200, 0, 850);
+        lightArray.push(roadLight11);
+
+        // painting...
+        ////////////////////////////////////////////////////////////////////////////////////
+        var paintNumber = 18;
+        var paintingArray = [];
+        var paintMashArray = [];
+
+        for (let i = 0; i < 10; i++) {
+            var paint, mash;
+            paintingArray[i] = paint;
+            paintMashArray[i] = mash;
+        }
+
+        var loader = new THREE.TextureLoader();
+        for (let i = 0; i < paintNumber; i++) {
+            paintMashArray[i] = loader.load('../picture/woodPlane.jpg');
+        }
+
+        for (let i = 0; i < paintNumber; i++) {
+            paintingArray[i] = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshBasicMaterial({
+                map: paintMashArray[i],
+                side: THREE.DoubleSide
+            }));
+
+            gallery.add(paintingArray[i]);
+        }
+
+        paintingArray[0].position.set(250, 60, 10.1);
+
+        paintingArray[1].position.set(750, 60, 10.1);
+
+        paintingArray[2].position.set(10.1, 60, 150);
+        paintingArray[2].rotation.y = Math.PI / 2;
+
+        paintingArray[3].position.set(494.9, 60, 150);
+        paintingArray[3].rotation.y = Math.PI / 2;
+
+        paintingArray[4].position.set(505.1, 60, 150);
+        paintingArray[4].rotation.y = Math.PI / 2;
+
+        paintingArray[5].position.set(989.9, 60, 150);
+        paintingArray[5].rotation.y = Math.PI / 2;
+
+        paintingArray[6].position.set(10.1, 60, 850);
+        paintingArray[6].rotation.y = Math.PI / 2;
+
+        paintingArray[7].position.set(494.9, 60, 850);
+        paintingArray[7].rotation.y = Math.PI / 2;
+
+        paintingArray[8].position.set(505.1, 60, 850);
+        paintingArray[8].rotation.y = Math.PI / 2;
+
+        paintingArray[9].position.set(989.9, 60, 850);
+        paintingArray[9].rotation.y = Math.PI / 2;
+
+        paintingArray[10].position.set(250, 60, 989.9);
+
+        paintingArray[11].position.set(750, 60, 989.9);
+
+        paintingArray[12].position.set(1700, 60, 10.1);
+
+        paintingArray[13].position.set(1410.1, 60, 150);
+        paintingArray[13].rotation.y = Math.PI / 2;
+
+        paintingArray[14].position.set(1989.9, 60, 150);
+        paintingArray[14].rotation.y = Math.PI / 2;
+
+        paintingArray[15].position.set(1410.1, 60, 850);
+        paintingArray[15].rotation.y = Math.PI / 2;
+
+        paintingArray[16].position.set(1989.9, 60, 850);
+        paintingArray[16].rotation.y = Math.PI / 2;
+
+        paintingArray[17].position.set(1700, 60, 989.9);
+
+        // spotLight...
+        ////////////////////////////////////////////////////////////////////////////////////
+        var spotLightArray = [];
+
+        for (let i = 0; i < paintNumber; i++) {
+            var paintLight1 = new SpotLightType();
+            spotLightArray.push(paintLight1);
+            paintLight1.setLookAt(paintingArray[i]);
+            lightArray.push(paintLight1);
+        }
+
+        spotLightArray[0].setPosition(250, 100, 150);
+        spotLightArray[1].setPosition(750, 100, 150);
+        spotLightArray[2].setPosition(150, 100, 150);
+        spotLightArray[3].setPosition(350, 100, 150);
+        spotLightArray[4].setPosition(650, 100, 150);
+        spotLightArray[5].setPosition(850, 100, 150);
+        spotLightArray[6].setPosition(150, 100, 850);
+        spotLightArray[7].setPosition(350, 100, 850);
+        spotLightArray[8].setPosition(650, 100, 850);
+        spotLightArray[9].setPosition(850, 100, 850);
+        spotLightArray[10].setPosition(250, 100, 850);
+        spotLightArray[11].setPosition(750, 100, 850);
+        spotLightArray[12].setPosition(1700, 100, 150);
+        spotLightArray[13].setPosition(1550, 100, 150);
+        spotLightArray[14].setPosition(1850, 100, 150);
+        spotLightArray[15].setPosition(1550, 100, 850);
+        spotLightArray[16].setPosition(1850, 100, 850);
+        spotLightArray[17].setPosition(1700, 100, 850);
+    }
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x888888);
+        document.body.appendChild(renderer.domElement);
+
+        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 4000);
+        camera.position.set(0, 2000, 0);
+
+        let controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        ////////////////////////////////////////////////////////
+        var gridXZ = new THREE.GridHelper(4000, 400, 'red', 'white');
+        // scene.add(gridXZ);
+
+        // gallery.position.set(-1000, 0, -500);
+        scene.add(gallery);
+
+    }
+
+    function animateUpDate() {
+
+        time++;
+        // console.log(time);
+
+
+        for (let i = 0; i < lightArray.length; i++) {
+            lightArray[i].doUpDate();
+        }
+
+        for (let i = 0; i < lightArray.length; i++)
+            if (time % 300 === 0) lightArray[i].turnOnOff();
+
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+
+        animateUpDate();
+
+    }
+
+</script>
+
+</html>
