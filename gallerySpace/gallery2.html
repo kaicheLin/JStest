@@ -96,14 +96,42 @@
             this.cylinderGeometry = new THREE.Mesh(new THREE.CylinderGeometry(0, 5, 20, 32), new THREE.MeshNormalMaterial());
             this.cylinderGeometry.rotation.x = Math.PI / 2;
 
-            var camp = new THREE.LatheGeometry();
-            camp.segments = 30;
-            camp.phiStart = 2 * Math.PI;
-            camp.phiLength = 2 * Math.PI;
-            this.latheGeometry = new THREE.Mesh(camp, new THREE.MeshNormalMaterial());
-            this.latheGeometry.rotation.x = Math.PI / 2;
+            this.cone1 = new THREE.Mesh(new THREE.ConeGeometry(30, 1, 64, 1, true, 0, Math.PI / 4), new THREE.MeshBasicMaterial(
+                {
+                    color: 0xffff00,
+                    side: THREE.DoubleSide
+                }));
+            this.cone1.rotation.x = Math.PI / 2;
+            this.cone1.position.z = -10;
 
-            this.group.add(this.cylinderGeometry, this.latheGeometry);
+            this.cone2 = new THREE.Mesh(new THREE.ConeGeometry(30, 1, 64, 1, true, 0, Math.PI / 4), new THREE.MeshBasicMaterial(
+                {
+                    color: 0xffff00,
+                    side: THREE.DoubleSide
+                }));
+            this.cone2.rotation.x = Math.PI / 2;
+            this.cone2.rotation.y = Math.PI / 2;
+            this.cone2.position.z = -10;
+
+            this.cone3 = new THREE.Mesh(new THREE.ConeGeometry(30, 1, 64, 1, true, 0, Math.PI / 4), new THREE.MeshBasicMaterial(
+                {
+                    color: 0xffff00,
+                    side: THREE.DoubleSide
+                }));
+            this.cone3.rotation.x = Math.PI / 2;
+            this.cone3.rotation.y = Math.PI;
+            this.cone3.position.z = -10;
+
+            this.cone4 = new THREE.Mesh(new THREE.ConeGeometry(30, 1, 64, 1, true, 0, Math.PI / 4), new THREE.MeshBasicMaterial(
+                {
+                    color: 0xffff00,
+                    side: THREE.DoubleSide
+                }));
+            this.cone4.rotation.x = Math.PI / 2;
+            this.cone4.rotation.y = 3 * Math.PI / 2;
+            this.cone4.position.z = -10;
+
+            this.group.add(this.cylinderGeometry, this.cone1, this.cone2, this.cone3, this.cone4);
             gallery.add(this.spotLight, this.spotLightHelper, this.group);
         }
 
