@@ -2,9 +2,24 @@
 
 <body>
 
-    <div id="info">minimal three.js</div>
+    <div id="info">GALLERY <br>
+
+        <input type=range min=0 max=100 id="lightContral">light<br>
+
+        <select id='cameraContral'>
+            <option value="1">Orbit</option>
+            <option value="2">Top</option>
+            <option value="3">Map</option>
+        </select><br>
+    </div>
+
     <script src="https://threejs.org/build/three.min.js"></script>
     <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+
+
+
 </body>
 
 <style>
@@ -22,12 +37,36 @@
     }
 </style>
 
-<script>
+<script type="module">
+
+    import { MTLLoader } from 'https://cdn.skypack.dev/three@0.136/examples/jsm/loaders/MTLLoader.js';
+    import { OBJLoader } from 'https://cdn.skypack.dev/three@0.136/examples/jsm/loaders/OBJLoader.js';
 
     var camera, scene, renderer;
     var gallery = new THREE.Group();
     var time = 0;
     var lightArray = [];
+    var lightContral = 1;
+    var cameraTop, cameraMap;
+    var cameraType = '1';
+
+    // var cameraPlace = document.getElementById("lightContral");
+    // cameraPlace.change = function () {
+    //     console.log("into");
+    //     lightContral = cameraPlace.val();
+    // }
+
+    $('#lightContral').change(function () {
+        let val = $(this).val();
+        console.log(val);
+        lightContral = val / 25;
+    });
+
+    $('#cameraContral').change(function () {
+        let val = $(this).val();
+        console.log(val);
+        cameraType = val;
+    });
 
     class WallType {
 
@@ -77,13 +116,16 @@
             this.group.lookAt(this.target.position);
         }
 
-        turnOnOff() {
-            if (this.spotLight.intensity === 0) {
-                this.spotLight.intensity = 1;
-            }
-            else {
-                this.spotLight.intensity = 0;
-            }
+        turnOn() {
+            this.spotLight.intensity = 1;
+        }
+
+        turnOff() {
+            this.spotLight.intensity = 0;
+        }
+
+        setLight(lx = 1) {
+            this.spotLight.intensity = lx;
         }
 
     }
@@ -92,7 +134,7 @@
 
         constructor() {
 
-            this.pointLight = new THREE.PointLight(0xffffff, 0.8, 250, 0.5);
+            this.pointLight = new THREE.PointLight(0xffffff, 0.8, 400, 0.5);
             gallery.add(this.pointLight);
 
             this.pointLightHelper = new THREE.PointLightHelper(this.pointLight, 10);
@@ -110,13 +152,16 @@
 
         }
 
-        turnOnOff() {
-            if (this.pointLight.intensity === 0) {
-                this.pointLight.intensity = 1;
-            }
-            else {
-                this.pointLight.intensity = 0;
-            }
+        turnOn() {
+            this.pointLight.intensity = 1;
+        }
+
+        turnOff() {
+            this.pointLight.intensity = 0;
+        }
+
+        setLight(lx = 1) {
+            this.pointLight.intensity = Math.max(lx * 0.7, 0.7);
         }
 
     }
@@ -132,7 +177,7 @@
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
         texture.repeat.set(10, 5);
-        floor = new THREE.Mesh(new THREE.PlaneGeometry(3000, 1500), new THREE.MeshBasicMaterial({
+        var floor = new THREE.Mesh(new THREE.PlaneGeometry(3000, 1500), new THREE.MeshBasicMaterial({
             map: texture
         }));
         floor.position.set(1000, -0.1, 500);
@@ -300,9 +345,26 @@
         }
 
         var loader = new THREE.TextureLoader();
-        for (let i = 0; i < paintNumber; i++) {
-            paintMashArray[i] = loader.load('../picture/woodPlane.jpg');
-        }
+
+        paintMashArray[0] = loader.load('../picture/fishs/1.jpg');
+        paintMashArray[1] = loader.load('../picture/fishs/2.png');
+        paintMashArray[2] = loader.load('../picture/fishs/3.jpg');
+        paintMashArray[3] = loader.load('../picture/fishs/4.jpg');
+        paintMashArray[4] = loader.load('../picture/fishs/5.jpg');
+        paintMashArray[5] = loader.load('../picture/fishs/6.jpg');
+        paintMashArray[6] = loader.load('../picture/fishs/7.jpg');
+        paintMashArray[7] = loader.load('../picture/fishs/8.jpg');
+        paintMashArray[8] = loader.load('../picture/fishs/9.jpg');
+        paintMashArray[9] = loader.load('../picture/fishs/10.jpg');
+        paintMashArray[10] = loader.load('../picture/fishs/11.jpg');
+        paintMashArray[11] = loader.load('../picture/fishs/12.png');
+        paintMashArray[12] = loader.load('../picture/fishs/13.png');
+        paintMashArray[13] = loader.load('../picture/fishs/14.png');
+        paintMashArray[14] = loader.load('../picture/fishs/15.png');
+        paintMashArray[15] = loader.load('../picture/fishs/16.png');
+        paintMashArray[16] = loader.load('../picture/fishs/17.png');
+        paintMashArray[17] = loader.load('../picture/fishs/18.png');
+
 
         for (let i = 0; i < paintNumber; i++) {
             paintingArray[i] = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshBasicMaterial({
@@ -390,6 +452,167 @@
         spotLightArray[15].setPosition(1550, 100, 850);
         spotLightArray[16].setPosition(1850, 100, 850);
         spotLightArray[17].setPosition(1700, 100, 850);
+
+        // chair...
+        ////////////////////////////////////////////////////////////////////////////////////
+        var chair1 = creatChair(2);
+        chair1.position.set(400, 0, 350);
+
+        var chair2 = creatChair(1.5);
+        chair2.position.set(600, 0, 350);
+
+        var chair3 = creatChair(5.5);
+        chair3.position.set(500, 0, 650);
+        chair3.rotation.y = Math.PI;
+
+        var chair4 = creatChair(1);
+        chair4.position.set(1850, 0, 850);
+        chair4.rotation.y = Math.PI / 2;
+
+        var chair5 = creatChair(1);
+        chair5.position.set(1550, 0, 150);
+        chair5.rotation.y = -Math.PI / 2;
+
+        gallery.add(chair1, chair2, chair3, chair4, chair5);
+
+        //panal...
+        var panal = new THREE.Mesh(new THREE.CylinderGeometry(150, 150, 30, 32), new THREE.MeshLambertMaterial());
+        panal.position.set(1200, 15, 500);
+
+        gallery.add(panal);
+    }
+
+    testing();
+
+    function testing() {
+        readModel("shark");
+        var theobj = scene.getObjectByName('OBJ');
+        theobj.position.set(0, 100, 0);
+        theobj.rotation.z = Math.PI / 2;
+    }
+
+    function readModel(modelName, targetSize = 40) {
+
+        var onProgress = function (xhr) {
+            if (xhr.lengthComputable) {
+                var percentComplete = xhr.loaded / xhr.total * 100;
+                console.log(Math.round(percentComplete, 2) + '% downloaded');
+            }
+        };
+
+        var onError = function (xhr) { };
+
+        var mtlLoader = new MTLLoader();
+        mtlLoader.setPath('models/');
+        mtlLoader.load(modelName + '.mtl', function (materials) {
+
+            materials.preload();
+
+            var objLoader = new OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.setPath('models/');
+            objLoader.load(modelName + '.obj', function (object) {
+
+                let theObject = unitize(object, targetSize);
+                //theObject.add ( new THREE.BoxHelper (theObject) )
+                theObject.name = 'OBJ'
+                scene.add(theObject);
+
+                theObject.setRotationFromEuler(new THREE.Euler(3.1416 / 2, 0, -3.1416 / 2, 'ZYX'))
+
+
+            }, onProgress, onError);
+
+        });
+
+
+    }
+
+
+    ////////////////////////////////////////
+    // wrap an Object3D around the given object
+    // so that it is centered at +Y axis
+    // 
+    function unitize(object, targetSize) {
+
+        // find bounding box of 'object'
+        var box3 = new THREE.Box3();
+        box3.setFromObject(object);
+        var size = new THREE.Vector3();
+        size.subVectors(box3.max, box3.min);
+        var center = new THREE.Vector3();
+        center.addVectors(box3.max, box3.min).multiplyScalar(0.5);
+
+        console.log('center: ' + center.x + ', ' + center.y + ', ' + center.z);
+        console.log('size: ' + size.x + ', ' + size.y + ', ' + size.z);
+
+        // uniform scaling according to objSize
+        var objSize = Math.max(size.x, size.y, size.z);
+        var scaleSet = targetSize / objSize;
+
+        var theObject = new THREE.Object3D();
+        theObject.add(object);
+        object.scale.set(scaleSet, scaleSet, scaleSet);
+        object.position.set(-center.x * scaleSet, -center.y * scaleSet, -center.z * scaleSet);
+
+        return theObject;
+
+    }
+
+
+    function creatChair(length) {
+        var chair = new THREE.Group();
+
+        var sit = new THREE.Mesh(new THREE.BoxGeometry(60 * length, 5, 60), new THREE.MeshNormalMaterial());
+        sit.position.set(0, 30, 0);
+
+        var back = new THREE.Mesh(new THREE.BoxGeometry(60 * length, 20, 10), new THREE.MeshNormalMaterial());
+        back.position.set(0, 60, -25);
+        back.rotation.x = -Math.PI / 12;
+
+        var takeBack1 = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 20, 32), new THREE.MeshNormalMaterial());
+        takeBack1.position.set((60 * length) / 2 - 10, 42, -23);
+        takeBack1.rotation.x = -Math.PI / 25;
+
+        var takeBack2 = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 20, 32), new THREE.MeshNormalMaterial());
+        takeBack2.position.set(-(60 * length) / 2 + 10, 42, -23);
+        takeBack2.rotation.x = -Math.PI / 25;
+
+        var leg1 = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 30, 32), new THREE.MeshNormalMaterial());
+        leg1.position.set(-(60 * length) / 2 + 15, 15, -18);
+        leg1.rotation.x = Math.PI / 12;
+        leg1.rotation.z = -Math.PI / 12;
+
+        var leg1End = new THREE.Mesh(new THREE.CapsuleGeometry(6, 1, 32, 64), new THREE.MeshNormalMaterial());
+        leg1End.position.set(-(60 * length) / 2 + 13, 5, -20);
+
+        var leg2 = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 30, 32), new THREE.MeshNormalMaterial());
+        leg2.position.set((60 * length) / 2 - 15, 15, -18);
+        leg2.rotation.x = Math.PI / 12;
+        leg2.rotation.z = Math.PI / 12;
+
+        var leg2End = new THREE.Mesh(new THREE.CapsuleGeometry(6, 1, 32, 64), new THREE.MeshNormalMaterial());
+        leg2End.position.set((60 * length) / 2 - 13, 5, -20);
+
+        var leg3 = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 30, 32), new THREE.MeshNormalMaterial());
+        leg3.position.set((60 * length) / 2 - 15, 15, 12);
+        leg3.rotation.x = -Math.PI / 12;
+        leg3.rotation.z = Math.PI / 12;
+
+        var leg3End = new THREE.Mesh(new THREE.CapsuleGeometry(6, 1, 32, 64), new THREE.MeshNormalMaterial());
+        leg3End.position.set((60 * length) / 2 - 13, 5, 15);
+
+        var leg4 = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 30, 32), new THREE.MeshNormalMaterial());
+        leg4.position.set(-(60 * length) / 2 + 15, 15, 12);
+        leg4.rotation.x = -Math.PI / 12;
+        leg4.rotation.z = -Math.PI / 12;
+
+        var leg4End = new THREE.Mesh(new THREE.CapsuleGeometry(6, 1, 32, 64), new THREE.MeshNormalMaterial());
+        leg4End.position.set(-(60 * length) / 2 + 13, 5, 15);
+
+        chair.add(sit, back, takeBack1, takeBack2, leg1, leg1End, leg2, leg2End, leg3, leg3End, leg4, leg4End);
+
+        return chair;
     }
 
     function init() {
@@ -406,33 +629,70 @@
 
         let controls = new THREE.OrbitControls(camera, renderer.domElement);
 
+        cameraTop = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 4000);
+        cameraTop.position.set(1000, 2000, 500);
+        cameraTop.lookAt(1000, 0, 500);
+
+        cameraMap = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 4000);
+        cameraMap.position.set(0, 0, 100120);
+        cameraMap.lookAt(0, 0, 100000);
+
         ////////////////////////////////////////////////////////
         var gridXZ = new THREE.GridHelper(4000, 400, 'red', 'white');
-        // scene.add(gridXZ);
+        scene.add(gridXZ);
 
         // gallery.position.set(-1000, 0, -500);
-        scene.add(gallery);
+        // scene.add(gallery);
 
+        //map...
+        let mmapTexture1 = new THREE.TextureLoader().load('../picture/簡報1 (1)_page-0002.jpg');
+        var map1 = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshBasicMaterial({
+            map: mmapTexture1
+        }));
+        map1.position.set(-50, 0, 100000);
+
+        let mmapTexture2 = new THREE.TextureLoader().load('../picture/簡報1 (1)_page-0003.jpg');
+        var map2 = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshBasicMaterial({
+            map: mmapTexture2
+        }));
+        map2.position.set(50, 0, 100000);
+
+        scene.add(map1, map2);
     }
 
     function animateUpDate() {
 
         time++;
-        // console.log(time);
+        console.log(lightContral);
 
 
         for (let i = 0; i < lightArray.length; i++) {
             lightArray[i].doUpDate();
         }
 
-        for (let i = 0; i < lightArray.length; i++)
-            if (time % 300 === 0) lightArray[i].turnOnOff();
+        for (let i = 0; i < lightArray.length; i++) {
+            lightArray[i].setLight(lightContral);
+        }
+
+        // for (let i = 0; i < lightArray.length; i++) {
+        //     if (time % 300 === 0) lightArray[i].turnOn();
+        //     if ((time + 150) % 300 === 0) lightArray[i].turnOff();
+        // }
+
 
     }
 
     function animate() {
         requestAnimationFrame(animate);
-        renderer.render(scene, camera);
+
+        if (cameraType === '1') {
+            renderer.render(scene, camera);
+        } else if (cameraType === '2') {
+            renderer.render(scene, cameraTop);
+        } else if (cameraType === '3') {
+            renderer.render(scene, cameraMap);
+        }
+
 
         animateUpDate();
 
