@@ -132,7 +132,8 @@
             this.cone4.position.z = -5;
 
             this.group.add(this.cylinderGeometry, this.cone1, this.cone2, this.cone3, this.cone4);
-            gallery.add(this.spotLight, this.spotLightHelper, this.group);
+            gallery.add(this.spotLight, this.group);
+            // gallery.add(this.spotLightHelper);
         }
 
         setPosition(x = 0, y = 100, z = 0) {
@@ -173,7 +174,7 @@
             gallery.add(this.pointLight);
 
             this.pointLightHelper = new THREE.PointLightHelper(this.pointLight, 10);
-            gallery.add(this.pointLightHelper);
+            // gallery.add(this.pointLightHelper);
 
         }
 
