@@ -1,0 +1,223 @@
+<html>
+
+<body>
+
+    <div id="info">Texture Map
+    </div>
+    <script src="https://threejs.org/build/three.min.js"></script>
+    <script src="https://threejs.org/examples/js/controls/OrbitControls.js">
+    </script>
+    <script src="https://jyunming-chen.github.io/tutsplus/js/KeyboardState.js"></script>
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+</body>
+
+<style>
+    #info {
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        color: #ffff00
+    }
+
+    body {
+        overflow: hidden;
+    }
+</style>
+
+<script>
+
+    var keyboard = new KeyboardState();
+    var camera, scene, renderer;
+
+    var texture, textureCh, mesh, floor;
+    var goRight = true, running = true;
+    var myTurn = goRight, myState = running;
+
+
+    init();
+    animate();
+
+    function buildGeometry() {
+        var n = 10;
+        var geometry = new THREE.BufferGeometry();
+        let vertices = [];
+        let uvs = [];
+        let indices = [0, 1, 2, 0, 2, 3];
+        vertices.push(-15, -15 - n, 0, 15, -15 - n, 0, 15, 15 - n, 0, -15, 15 - n, 0);
+        uvs.push(0, 0.3333, 0.125, 0.3333, 0.125, 0.6666, 0, 0.6666);
+
+        geometry.setIndex(indices);
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+
+        geometry.computeBoundingSphere();
+        //geometry.computeFaceNormals();
+        geometry.computeVertexNormals();
+
+        return geometry;
+    }
+
+    function init() {
+        clock = new THREE.Clock();
+
+        renderer = new THREE.WebGLRenderer({
+            antialias: true
+        });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        scene = new THREE.Scene();
+        camera = new THREE.OrthographicCamera(-50, 50, 50, -50, -10, 100);
+        camera.position.z = 10;
+        window.addEventListener('resize', onWindowResize, false);
+
+        /////////////////////////////////////////////////////////////////////
+
+        var loader = new THREE.TextureLoader();
+
+        textureCh = loader.load('../picture/gameMan.png');
+
+        var texMat = new THREE.MeshBasicMaterial({
+            map: textureCh,
+            transparent: true,
+            side: THREE.DoubleSide
+        });
+        mesh = new THREE.Mesh(buildGeometry(), texMat);
+        scene.add(mesh);
+        textureCh.wrapS = THREE.RepeatWrapping;
+        textureCh.wrapT = THREE.RepeatWrapping;
+        mesh.position.z += 1;
+
+        textureCh.offset.y += 0.3333;
+
+        window.addEventListener('resize', onWindowResize, false);
+
+        loader.crossOrigin = '';
+        texture = loader.load('../picture/gameBack.png');
+        texture.wrapS = THREE.RepeatWrapping;
+
+        // Plane with default texture coordinates [0,1]x[0,1]
+        var texMat = new THREE.MeshBasicMaterial({
+            map: texture,
+            side: THREE.DoubleSide
+        });
+        floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), texMat);
+        scene.add(floor);
+
+        setInterval(textureAnimate, 250);
+    }
+
+    function animate() {
+
+        var dt = clock.getDelta();
+        update(dt);
+
+        if (myState) {
+            texture.offset.x += 0.002;
+        }
+        else {
+            texture.offset.x += 0.001;
+        }
+
+
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+    }
+
+    function textureAnimate() {
+
+
+        textureCh.offset.x += 0.125;
+
+        if (myTurn != goRight) {
+
+            turnAround();
+        }
+
+        if (myState != running) {
+
+            changeRunState();
+        }
+
+        // console.log("go - " + goRight, running);
+        // console.log("my - " + myTurn, myState);
+    }
+
+    function turnAround() {
+        console.log("turn around");
+        myTurn = !myTurn;
+
+        if (myTurn) {
+            mesh.rotation.y = 0;
+            floor.rotation.y = 0;
+
+        } else {
+            mesh.rotation.y = Math.PI;
+            floor.rotation.y = Math.PI;
+
+        }
+
+
+    }
+
+    function changeRunState() {
+        if (myState == false) {
+            console.log("run up");
+            myState = true;
+            textureCh.offset.y += 0.3333;
+        }
+        else {
+            console.log("slow down");
+            myState = false;
+            textureCh.offset.y -= 0.3333;
+        }
+    }
+
+
+    function update(dt) {
+
+        keyboard.update();
+
+        if (keyboard.pressed("left")) {
+            if (myTurn) {
+                goRight = false;
+            }
+            else {
+                running = true;
+            }
+        }
+
+        if (keyboard.pressed("right")) {
+            if (myTurn) {
+                running = true;
+            }
+            else {
+                goRight = true;
+            }
+        }
+
+        if (keyboard.pressed("up")) {
+            running = true;
+        }
+
+        if (keyboard.pressed("down")) {
+            running = false;
+        }
+
+    }
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+
+</script>
+
+</html>
