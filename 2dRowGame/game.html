@@ -37,7 +37,7 @@
 
     var texture, textureCh, mesh, floor;
     var goRight = true, running = true;
-    var myTurn = goRight, myState = running;
+    var myTurn = goRight, myState = running, myJump = false;
 
 
     init();
@@ -153,6 +153,11 @@
             changeRunState();
         }
 
+        if (myJump) {
+
+            jumpUp();
+        }
+
         // console.log("go - " + goRight, running);
         // console.log("my - " + myTurn, myState);
     }
@@ -171,7 +176,6 @@
 
         }
 
-
     }
 
     function changeRunState() {
@@ -187,6 +191,32 @@
         }
     }
 
+    function jumpUp() {
+
+        jumpUp.local = (jumpUp.local === undefined) ? mesh.position.y : jumpUp.local;
+        jumpUp.up = (jumpUp.up === undefined) ? true : jumpUp.up;
+
+        let limit = 20;
+
+        if (mesh.position.y < jumpUp.local + limit && jumpUp.up) {
+            mesh.position.y += 1;
+            console.log("jump up ing");
+        } else if (mesh.position.y === jumpUp.local + limit && jumpUp.up) {
+            jumpUp.up = false;
+            console.log("jump to limit");
+        } else {
+            if (mesh.position.y != jumpUp.local) {
+                mesh.position.y -= 1;
+                console.log("fail ing");
+            } else {
+                myJump = false;
+                jumpUp.up = undefined;
+                console.log("jump end");
+            }
+        }
+
+
+    }
 
     function update(dt) {
 
@@ -212,6 +242,7 @@
 
         if (keyboard.pressed("up")) {
             running = true;
+            myJump = true;
         }
 
         if (keyboard.pressed("down")) {
