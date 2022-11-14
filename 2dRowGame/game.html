@@ -4,7 +4,7 @@
 
     <div id="info">Texture Map<br>
         "left-rught" to turn<br>
-        "up-down" to run/stop<br>
+        "up-down" to run/walk<br>
     </div>
     <script src="https://threejs.org/build/three.min.js"></script>
     <script src="https://threejs.org/examples/js/controls/OrbitControls.js">
@@ -94,6 +94,7 @@
         textureCh.wrapS = THREE.RepeatWrapping;
         textureCh.wrapT = THREE.RepeatWrapping;
         mesh.position.z += 1;
+        mesh.position.y -= 5;
 
         textureCh.offset.y += 0.3333;
 
@@ -119,13 +120,19 @@
         var dt = clock.getDelta();
         update(dt);
 
+        let goWay = 0;
+
         if (myState) {
-            texture.offset.x += 0.002;
+            goWay = 0.002;
         }
         else {
-            texture.offset.x += 0.001;
+            goWay = 0.001;
         }
 
+        if (!myTurn)
+            goWay *= -1;
+
+        texture.offset.x += goWay
 
         requestAnimationFrame(animate);
         renderer.render(scene, camera);
@@ -156,11 +163,11 @@
 
         if (myTurn) {
             mesh.rotation.y = 0;
-            floor.rotation.y = 0;
+            // floor.rotation.y = 0;
 
         } else {
             mesh.rotation.y = Math.PI;
-            floor.rotation.y = Math.PI;
+            // floor.rotation.y = Math.PI;
 
         }
 
