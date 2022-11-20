@@ -202,10 +202,7 @@
 
     }
 
-    setUpGallery();
-    init();
-    testing();
-    animate();
+
 
     function setUpGallery() {
         // floor
@@ -656,14 +653,10 @@
         map2.position.set(50, 0, 100000);
 
         scene.add(map1, map2);
-    }
 
-    function testing() {
         readModel("shark");
-
-        // theobj.position.set(0, 100, 0);
-        // theobj.rotation.z = Math.PI / 2;
     }
+
 
     function readModel(modelName, targetSize = 300) {
 
@@ -769,6 +762,30 @@
         animateUpDate();
 
     }
+
+    ccc();
+
+    function ccc() {
+        let m = 99999;
+        var matrixRoad = [];
+        matrixRoad.push([0, 1, m, m, m, m, m, m, m, m, m]); // 0
+        matrixRoad.push([1, 0, 1, m, 1, 1, m, m, m, m, m]); // 1
+        matrixRoad.push([m, 1, 0, m, m, m, m, m, m, m, m]); // 2
+        matrixRoad.push([m, m, m, 0, 1, m, m, m, m, m, m]); // 3
+        matrixRoad.push([m, 1, m, 1, 0, m, m, m, 1, m, m]); // 4
+        matrixRoad.push([m, 1, m, m, m, 0, 1, m, m, 1, m]); // 5
+        matrixRoad.push([m, m, m, m, m, 1, 0, m, m, m, m]); // 6
+        matrixRoad.push([m, m, m, m, m, m, m, 0, 1, m, m]); // 7
+        matrixRoad.push([m, m, m, m, 1, m, m, 1, 0, 1, m]); // 8
+        matrixRoad.push([m, m, m, m, m, 1, m, m, 1, 0, 1]); // 9
+        matrixRoad.push([m, m, m, m, m, m, m, m, m, 1, 0]); // 10
+
+        console.log(matrixRoad);
+    }
+
+    setUpGallery();
+    init();
+    animate();
 
 </script>
 

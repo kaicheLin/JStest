@@ -40,12 +40,14 @@
     var goRight = true, running = true;
     var myTurn = goRight, myState = running, myJump = false;
 
+    var countingError = 0;
+
 
     init();
     animate();
 
     function buildGeometry() {
-        var n = 10;
+        var n = 13;
         var geometry = new THREE.BufferGeometry();
         let vertices = [];
         let uvs = [];
@@ -71,7 +73,9 @@
             antialias: true
         });
 
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        let rendererSize = Math.min(window.innerWidth, window.innerHeight);
+        // renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(rendererSize, rendererSize);
         document.body.appendChild(renderer.domElement);
 
         scene = new THREE.Scene();
@@ -117,17 +121,22 @@
     }
 
     function animate() {
+        countingError++;
 
         var dt = clock.getDelta();
         update(dt);
 
-        let goWay = 0;
+        let goWay = 0.0005;
+        /* 
+            30 / (8 * 75 * 100)
+            30 : person size,
+            8 : offset, 
+            75 : textureAnimate/animate, 
+            100 : background size;
+        */
 
-        if (myState) {
-            goWay = 0.002;
-        }
-        else {
-            goWay = 0.001;
+        if (!myState) {
+            goWay /= 2;
         }
 
         if (!myTurn)
@@ -138,14 +147,29 @@
         //     jumpUp();
         // }
 
-        texture.offset.x += goWay
+        let rightMax = 20, leftMax = -20, moveLengh = 0.05;
+
+        if (!myState) {
+            moveLengh /= 2;
+        }
+
+        if (myTurn & mesh.position.x < rightMax) {
+            mesh.position.x += moveLengh;
+        } else if (!myTurn & mesh.position.x > leftMax) {
+            mesh.position.x -= moveLengh;
+        } else {
+            texture.offset.x += goWay;
+        }
+
 
         requestAnimationFrame(animate);
         renderer.render(scene, camera);
     }
 
     function textureAnimate() {
-
+        textureAnimate.catch = (textureAnimate.catch === undefined ? 0 : textureAnimate.catch);
+        console.log(countingError - textureAnimate.catch);
+        textureAnimate.catch = countingError;
 
         textureCh.offset.x += 0.125;
 
@@ -260,7 +284,10 @@
     function onWindowResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        let rendererSize = Math.min(window.innerWidth, window.innerHeight);
+        // renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(rendererSize, rendererSize);
     }
 
 
