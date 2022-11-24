@@ -121,7 +121,7 @@
 
     }
 
-    function covariance(x, y) {
+    function covariance(x = 0, y = 1) {
 
         var xSum = 0;
         var ySum = 0;
@@ -274,7 +274,7 @@
     function onWindowResize() {
 
         aspect = window.innerWidth / window.innerHeight// w/h
-        
+
         //let top = 100;
         //let bottom = -top;  
         camera.right = (100 - (-100)) * aspect / 2;
