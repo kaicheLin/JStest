@@ -1,0 +1,298 @@
+<html>
+
+<body>
+
+    <div id="info">OBB</div>
+    <script src="https://threejs.org/build/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js"></script>
+
+
+</body>
+
+<style>
+    #info {
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        color: #ffff00
+    }
+
+    body {
+        overflow: hidden;
+    }
+</style>
+
+<script>
+    var camera, scene, renderer;
+    var aspect;
+    var allPoint = [];
+    // var allPoint = [[16.2, 4.4], [9.8, -6.2], [6.6, -2], [-4, -7.2], [1.8, -12.8]];
+
+    init();
+    animate();
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        renderer = new THREE.WebGLRenderer();
+        aspect = window.innerWidth / window.innerHeight// w/h
+        // lanscape: aspect > 1
+        // (portrait): aspect < 1
+        //debugger;
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        //debugger;
+        renderer.setClearColor(0x888888);
+        document.body.appendChild(renderer.domElement);
+
+        // aspect > 1
+        // (right-left)/(top-bottom)  = aspect
+        // right-left = (top-bottom)*aspect
+        let top = 100;
+        let bottom = -top;
+        // right-left = (100-(-100))*aspect
+        // therefore: 
+
+        let right = (100 - (-100)) * aspect / 2
+        let left = -right;
+        camera = new THREE.OrthographicCamera(left, right, top, bottom, -10, 10);
+        camera.position.z = 0;  // camera at (0,0,0)
+        ////////////////////////////////////////////////////////
+        var gridXZ = new THREE.GridHelper(500, 50, 'red', 'white');
+        scene.add(gridXZ);
+        gridXZ.rotation.x = Math.PI / 2;
+
+        window.addEventListener('resize', onWindowResize, false);
+        window.addEventListener('pointerdown', onMouseDown, false);
+
+        // scene.add(makeSquare());
+    }
+
+    function makeSquare() {
+        var square = new THREE.Mesh(new THREE.PlaneGeometry(30, 10), new THREE.MeshBasicMaterial({ color: 'yellow' }));
+
+        square.name = 'obb';
+
+        square.position.set(50 * Math.random(), 50 * Math.random(), 0);
+        return square;
+    }
+
+    function onMouseDown(event) {
+
+        event.preventDefault();
+
+        let mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+        let mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        // put new point in array
+        // allPoint.push([mouseX, mouseY]);
+        allPoint.push([mouseX * ((100 - (-100)) * aspect / 2), mouseY * 100]);
+
+        console.log("allPoint = ");
+        console.log(allPoint);
+
+        // draw pointerdown local point
+        dot = new THREE.Mesh(new THREE.CircleGeometry(2, 20), new THREE.MeshBasicMaterial({ color: 'red' }));
+        let dd = dot.clone();
+        dd.position.set(mouseX * ((100 - (-100)) * aspect / 2), mouseY * 100, 0);
+        // console.log(20 * mouseX.toFixed(2) + ', ' + 20 * mouseY.toFixed(2));
+        console.log(mouseX * ((100 - (-100)) * aspect / 2) + " , " + mouseY * 100 + " , " + 0);
+
+        scene.add(dd);
+
+        if (allPoint.length >= 3) {
+
+            // search and remove past OBB
+            while (scene.getObjectByName('obb') != undefined) {
+                let obb = scene.getObjectByName('obb');
+                scene.remove(obb);
+            }
+
+            // make new OBB
+            scene.add(makeSquare());
+            scene.add(makeSquare());
+            scene.add(makeSquare());
+
+            console.log("do it");
+            covarianceMatrix();
+        }
+
+    }
+
+    function covariance(x, y) {
+
+        var xSum = 0;
+        var ySum = 0;
+
+        for (let i = 0; i < allPoint.length; i++) {
+            xSum += allPoint[i][x];
+            ySum += allPoint[i][y];
+        }
+
+        var xAvr = xSum / allPoint.length;
+        var yAvr = ySum / allPoint.length;
+
+        var cov = 0;
+
+        for (let i = 0; i < allPoint.length; i++) {
+            cov += (allPoint[i][x] - xAvr) * (allPoint[i][y] - yAvr);
+        }
+
+        return cov / (allPoint.length - 1);
+    }
+
+    function covarianceMatrix() {
+
+        var covMatrix = [];
+
+        covMatrix.push([covariance(0, 0), covariance(0, 1)]); // (x,x) (x,y)
+        covMatrix.push([covariance(1, 0), covariance(1, 1)]); // (y,x) (y,y)
+
+        // Eigenvalues.
+        var ev = numeric.eig(covMatrix);
+        // console.log(ev.lambda.x[0]);  // largest eigenvalue
+        // console.log(ev.E.x[0]); // NOT the eigenvector of lambda[0]
+        // console.log("eigenvector 1 = " + ev.E.x[0][0] + " , " + ev.E.x[1][0]); // the eigenvector of lambda[0]
+
+        var eigenValues = ev.lambda.x[0];
+        var eigenVector1 = new THREE.Vector3(ev.E.x[0][0], ev.E.x[1][0], 0);
+
+        console.log("eigenvector 1 = " + eigenVector1 + " = " + eigenVector1.x + " , " + eigenVector1.y); // PC1
+
+        var eigenVector2 = new THREE.Vector3(0, 0, 1); // it start with z-vector 
+        eigenVector2.cross(eigenVector1); // it must be (-1 * ev.E.x[1][0], ev.E.x[0][0], 0);
+
+        // var eigenVector2 = new THREE.Vector3(-1 * ev.E.x[1][0], ev.E.x[0][0], 0);
+
+        console.log("eigenvector 2 = " + eigenVector2 + " = " + eigenVector2.x + " , " + eigenVector2.y); // PC2
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // [PC1x PC1y]  [Px] = [Px']
+        // [PC2x PC2y]  [Py]   [Py']
+
+        var newAllPoint = []; // point on PC1/PC2
+
+        for (let i = 0; i < allPoint.length; i++) {
+            newAllPoint.push([
+                eigenVector1.x * allPoint[i][0] + eigenVector1.y * allPoint[i][1],
+                eigenVector2.x * allPoint[i][0] + eigenVector2.y * allPoint[i][1]
+            ])
+        }
+
+        console.log("newAllPoint = ");
+        console.log(newAllPoint);
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // AABB on PC1/PC2
+
+        var theMax = 999999;
+        var xMax = yMax = -1 * theMax;
+        var xMin = yMin = theMax;
+
+        for (let i = 0; i < newAllPoint.length; i++) {
+            if (newAllPoint[i][0] < xMin) xMin = newAllPoint[i][0];
+            if (xMax < newAllPoint[i][0]) xMax = newAllPoint[i][0];
+            if (newAllPoint[i][1] < yMin) yMin = newAllPoint[i][1];
+            if (yMax < newAllPoint[i][1]) yMax = newAllPoint[i][1];
+        }
+
+        var pointAABB = [];
+        pointAABB.push([xMax, yMax]);
+        pointAABB.push([xMax, yMin]);
+        pointAABB.push([xMin, yMin]);
+        pointAABB.push([xMin, yMax]);
+
+        console.log("pointAABB = ");
+        console.log(pointAABB);
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // [PC1x PC2x]  [Px'] = [Px]
+        // [PC1y PC2y]  [Py']   [Py]
+
+        var pointOBB = []; // point on PC1/PC2
+
+        for (let i = 0; i < pointAABB.length; i++) {
+            pointOBB.push([
+                eigenVector1.x * pointAABB[i][0] + eigenVector2.x * pointAABB[i][1],
+                eigenVector1.y * pointAABB[i][0] + eigenVector2.y * pointAABB[i][1]
+            ])
+        }
+
+        console.log("pointOBB = ");
+        console.log(pointOBB);
+
+        // draw OBB point
+        dot2 = new THREE.Mesh(new THREE.CircleGeometry(0.5, 20), new THREE.MeshBasicMaterial({ color: 'blue' }));
+
+        for (let i = 0; i < pointOBB.length; i++) {
+
+            var dd = dot2.clone();
+            // dd.position.set(pointOBB[i][0] * ((100 - (-100)) * aspect / 2), pointOBB[i][1] * 100, 0);
+            dd.position.set(pointOBB[i][0], pointOBB[i][1], 0);
+            dd.name = "obb";
+            scene.add(dd);
+
+            console.log("draw it at");
+            // console.log(pointOBB[i][0] * ((100 - (-100)) * aspect / 2) + " , " + pointOBB[i][1] * 100 + " , " + 0);
+            console.log(pointOBB[i][0] + " , " + pointOBB[i][1] + " , " + 0);
+
+        }
+
+        for (let i = 1; i < pointOBB.length; i++) {
+            let lineObb = makeLineSegment(
+                new THREE.Vector3(pointOBB[i - 1][0], pointOBB[i - 1][1], 0),
+                new THREE.Vector3(pointOBB[i][0], pointOBB[i][1], 0)
+            );
+            lineObb.name = "obb";
+            scene.add(lineObb);
+        }
+        let lineObb = makeLineSegment(
+            new THREE.Vector3(pointOBB[0][0], pointOBB[0][1], 0),
+            new THREE.Vector3(pointOBB[3][0], pointOBB[3][1], 0)
+        );
+        lineObb.name = "obb";
+        scene.add(lineObb);
+
+    }
+
+    function makeLineSegment(vec1, vec2) {
+        let points = [];
+        points.push(vec1, vec2);
+        let geometry = new THREE.BufferGeometry();
+        geometry.setFromPoints(points);
+        let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({
+            color: 'cyan'
+        }));
+        return line;
+    }
+
+    function onWindowResize() {
+
+        aspect = window.innerWidth / window.innerHeight// w/h
+        
+        //let top = 100;
+        //let bottom = -top;  
+        camera.right = (100 - (-100)) * aspect / 2;
+        camera.left = -camera.right;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function animate() {
+
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+
+    }
+
+
+</script>
+
+</html>

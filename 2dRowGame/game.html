@@ -73,9 +73,9 @@
             antialias: true
         });
 
-        let rendererSize = Math.min(window.innerWidth, window.innerHeight);
-        // renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setSize(rendererSize, rendererSize);
+        // let rendererSize = Math.min(window.innerWidth, window.innerHeight);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        // renderer.setSize(rendererSize, rendererSize);
         document.body.appendChild(renderer.domElement);
 
         scene = new THREE.Scene();
@@ -285,9 +285,9 @@
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
 
-        let rendererSize = Math.min(window.innerWidth, window.innerHeight);
-        // renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setSize(rendererSize, rendererSize);
+        // let rendererSize = Math.min(window.innerWidth, window.innerHeight);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        // renderer.setSize(rendererSize, rendererSize);
     }
 
 
