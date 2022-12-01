@@ -1,0 +1,139 @@
+<html>
+
+<body>
+    <div id="info">Keyframe Movement</div>
+    <script src="https://threejs.org/build/three.min.js"></script>
+    <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+</body>
+<style>
+    #info {
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        color: #ffff00
+    }
+
+    body {
+        overflow: hidden;
+    }
+</style>
+<script>
+    var camera, scene, renderer;
+
+    var keys;
+    var T = 2;
+    var clock = new THREE.Clock();
+    var ts = clock.getElapsedTime();
+    var car;
+
+    init();
+    animate();
+
+    function makeCar() {
+        var car = new THREE.Group();
+        var normalMat = new THREE.MeshNormalMaterial({
+            wireframe: false
+        });
+        var body = new THREE.Mesh(new THREE.CylinderGeometry(15, 15, 4, 20), normalMat);
+
+        var nose = new THREE.Mesh(new THREE.BoxGeometry(25, 4, 7), normalMat);
+        nose.position.x = 25 / 2;
+
+        var head = new THREE.Mesh(new THREE.BoxGeometry(4, 15, 7), normalMat);
+        head.position.y = 15 / 2;
+
+        var axesHelper = new THREE.AxesHelper(40);
+
+        car.add(body, nose, head, axesHelper);
+
+        return car;
+    }
+
+    function makeQuad(xz = 0, xy = 0) {
+        var takeQuad = new THREE.Mesh(new THREE.BoxGeometry(25, 4, 7), new THREE.MeshNormalMaterial());
+        takeQuad.rotation.y = (xz);
+        takeQuad.rotation.z = (xy);
+        return takeQuad.quaternion;
+    }
+
+    function init() {
+
+        scene = new THREE.Scene();
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x888888);
+        document.body.appendChild(renderer.domElement);
+
+        camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 10000);
+        camera.position.set(300, 400, 500); // camera at (0,0,500)
+        let controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        ////////////////////////////////////////////////////////
+        var gridXZ = new THREE.GridHelper(300, 30, 'red', 'white');
+        scene.add(gridXZ);
+
+        car = makeCar();
+        scene.add(car);
+
+        ///////////////////
+        var posA = [];
+
+        var pos1 = new THREE.Vector3(80, 0, 70);
+        var pos2 = new THREE.Vector3(60, 30, -60);
+        var pos3 = new THREE.Vector3(-90, -20, 0);
+
+        posA.push(pos1, pos2, pos3);
+
+        let q1 = Math.atan2(pos1.y - pos3.y, Math.sqrt((pos1.x - pos3.x) * (pos1.x - pos3.x) + (pos1.y - pos3.y) * (pos1.y - pos3.y)));
+        let q2 = Math.atan2(pos2.y - pos1.y, Math.sqrt((pos2.x - pos1.x) * (pos2.x - pos1.x) + (pos2.y - pos1.y) * (pos2.y - pos1.y)));
+        let q3 = Math.atan2(pos3.y - pos2.y, Math.sqrt((pos3.x - pos2.x) * (pos3.x - pos2.x) + (pos3.y - pos2.y) * (pos3.y - pos2.y)));
+
+        // 3/2𝜋 + Math.atan2(x,z)
+        var quad1 = makeQuad(3 / 2 * Math.PI + Math.atan2(pos1.x - pos3.x, pos1.z - pos3.z), q1); // 1-3 
+        var quad2 = makeQuad(3 / 2 * Math.PI + Math.atan2(pos2.x - pos1.x, pos2.z - pos1.z), q2); // 2-1 
+        var quad3 = makeQuad(3 / 2 * Math.PI + Math.atan2(pos3.x - pos2.x, pos3.z - pos2.z), q3); // 3-2 
+
+
+        keys = [
+            [0, pos1, quad1],   // quad1 ...
+            [0.333, pos2, quad2],
+            [0.6666, pos3, quad3],
+            [1, pos1, quad1]
+        ];
+
+    }
+
+    function clamp(v, lo, hi) {
+        if (v < lo) return lo;
+        if (v > hi) return hi;
+        return v;
+    }
+
+    function keyframe(t) {
+        var s = ((t - ts) % T) / T;
+
+        for (var i = 1; i < keys.length; i++) {
+            if (keys[i][0] > s) break;
+        }
+        // take i-1
+        var ii = i - 1;
+        var a = (s - keys[ii][0]) / (keys[ii + 1][0] - keys[ii][0]);
+
+        car.position.lerpVectors(keys[ii][1], keys[ii + 1][1], a);
+        car.quaternion.slerpQuaternions(keys[ii][2], keys[ii + 1][2], a);
+    }
+
+    function animate() {
+
+        keyframe(clock.getElapsedTime());
+
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+    }
+
+</script>
+
+</html>
