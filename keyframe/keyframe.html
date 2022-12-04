@@ -123,7 +123,7 @@
         var pos4 = makeMiddle(pos3, pos5);
         var pos6 = makeMiddle(pos5, pos1);
 
-    
+
         var quad1 = theQuad(pos6, pos1);
         var quad2 = theQuad(pos1, pos2);
         var quad3 = theQuad(pos2, pos3);
@@ -134,13 +134,14 @@
 
         keys = [
             [0, pos1, quad1],   // quad1 ...
-            [0.1666, pos2, quad2],
-            [2 * 0.1666, pos3, quad3],
-            [3 * 0.1666, pos4, quad4],
-            [4 * 0.1666, pos5, quad5],
-            [5 * 0.1666, pos6, quad6],
+            [1 / 6, pos2, quad2],
+            [2 / 6, pos3, quad3],
+            [3 / 6, pos4, quad4],
+            [4 / 6, pos5, quad5],
+            [5 / 6, pos6, quad6],
             [1, pos1, quad1]
         ];
+
 
     }
 
