@@ -9,19 +9,19 @@
     <div style="float:left; margin-left: 10px; width:32vw;">
 
         <div>
-            Sphere radius:
-            <input id="radius" type="range" min=3 max=30 value=5>
+            Furniture Size:
+            <input id="radius" type="range" min=0 max=30 value=15>
             <span id='radiusPrint'>
             </span>
             <br>
         </div>
         <br>
         <div style='background-color:pink'>
-            Color Selector:
+            Status Selector:
             <br>
-            <input type=radio name='c' value='red'>red
-            <input type=radio name='c' value='blue'>blue
-            <input type=radio name='c' value='green'>green
+            <input type=radio class='gclass' id='placing' name='g' value='place' checked> Place <br>
+            <input type=radio class='gclass' name='g' value='move'> Move<br>
+            <input type=radio class='gclass' name='g' value='delete'> Delete<br>
         </div>
         <br>
         <button id='clear' style="width:45%">Clear</button>
@@ -38,33 +38,50 @@
 
 </style>
 <script>
+
     $('#radius').change(function () {
         $('#radiusPrint').text($(this).val());
     });
+
+
 
     var camera, scene, renderer, controls;
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
     var pickplane;
     var cyl;
-    var spheres = [];
+    var furnitures = [];
+    var userStatus = "place";
 
     init();
     animate();
 
+    $('.gclass').click(function () {
+        if ($(this).val() === 'place') {
+            userStatus = "place";
+        } else if ($(this).val() === 'move') {
+            userStatus = "move";
+        } else {
+            // delete
+            userStatus = "delete";
+        }
+    });
+
     $('#clear').click(function () {
 
-        spheres.forEach(function (sphere) {
+        furnitures.forEach(function (sphere) {
             scene.remove(sphere);
         });
-        spheres = [];
+
+        furnitures = [];
 
     });
 
     $('#save').click(function () {
 
         var states = [];
-        spheres.forEach(function (sphere) {
+
+        furnitures.forEach(function (sphere) {
             states.push(sphere.name);
         });
 
@@ -75,29 +92,36 @@
     $('#restore').click(function () {
 
         var states = JSON.parse(localStorage.getItem('stateStr'));
+
         states.forEach(function (stateStr) {
             console.log(stateStr);
             var state = JSON.parse(stateStr);
-            buildSphere(state.rad, new THREE.Vector3(state.pos[0], 0, state.pos[1]));
+            if (state.type === "chair") {
+                buildChair(state.size, new THREE.Vector3(state.pos[0], 0, state.pos[1]));
+            }
+
         });
 
     });
 
-    function buildSphere(rad, pos) {
+    function buildChair(size, pos) {
 
-        var sphere = new THREE.Mesh(new THREE.SphereGeometry(rad, 20, 20), new THREE.MeshNormalMaterial());
+        var chair = new THREE.Mesh(new THREE.SphereGeometry(size, 20, 20), new THREE.MeshNormalMaterial());
 
-        scene.add(sphere);
+        scene.add(chair);
+
         var prop = {
-            rad: rad,
+            type: "chair",
+            size: size,
             pos: [pos.x, pos.z]
         };
-        console.log(prop);
-        sphere.name = JSON.stringify(prop);
-        console.log(sphere.name);
 
-        spheres.push(sphere);
-        sphere.position.copy(pos);
+        console.log(prop);
+        chair.name = JSON.stringify(prop);
+        console.log(chair.name);
+
+        furnitures.push(chair);
+        chair.position.copy(pos);
 
     }
 
@@ -138,9 +162,10 @@
         scene.add(gridXZ);
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
+
         window.addEventListener('resize', onWindowResize, false);
         window.addEventListener('mousemove', onDocumentMouseMove, false);
-        window.addEventListener('mousedown', onDocumentMouseDown, false);
+        window.addEventListener('mousedown', onDocumentMouseDown, true);
     }
 
     function onWindowResize() {
@@ -162,6 +187,7 @@
 
         raycaster.setFromCamera(mouse, camera);
         var intersects = raycaster.intersectObject(pickplane);
+
         if (intersects.length > 0) {
             cyl.position.copy(intersects[0].point);
             cyl.position.y = 2;
@@ -170,18 +196,48 @@
 
     function onDocumentMouseDown(event) {
 
-        event.preventDefault();
+        // event.preventDefault();
 
         var viewportPos = $('#container').get(0).getBoundingClientRect();
         mouse.x = ((event.clientX - viewportPos.left) / $('#container').innerWidth()) * 2 - 1;
         mouse.y = -((event.clientY - viewportPos.top) / $('#container').innerHeight()) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
-        var intersects = raycaster.intersectObject(pickplane);
-        if (intersects.length > 0) {
-            cyl.position.copy(intersects[0].point);
-            buildSphere(10, intersects[0].point);
+
+        if (userStatus === "place") { // place
+
+            console.log("now placing");
+
+            var intersects = raycaster.intersectObject(pickplane);
+
+            if (intersects.length > 0) {
+                cyl.position.copy(intersects[0].point);
+                buildChair(15, intersects[0].point);
+            }
+        } else { // delete
+
+            console.log("now deleting");
+
+            var intersects = raycaster.intersectObjects(furnitures);
+
+            if (intersects.length > 0) {
+                let theFurniture = intersects[0].object;
+
+                //scene.remove(thePuck);
+                theFurniture.removeFromParent();
+
+                // remove thePuck from pucks
+                for (let i = 0; i < furnitures.length; i++) {
+                    if (furnitures[i] === theFurniture) {
+                        furnitures.splice(i, 1);
+                        break;
+                    }
+                }
+
+            }
+
         }
+
     }
 
     function animate() {
