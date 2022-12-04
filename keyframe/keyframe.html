@@ -27,6 +27,7 @@
     var clock = new THREE.Clock();
     var ts = clock.getElapsedTime();
     var car;
+    var smokes = [];
 
     init();
     animate();
@@ -88,6 +89,17 @@
         car = makeCar();
         scene.add(car);
 
+        ////////////////////////////////////////////////////////
+
+        let smokesMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        
+        let smoke1 = new THREE.Mesh(new THREE.CapsuleGeometry(5, 1, 32, 64), smokesMaterial);
+        let smoke2 = new THREE.Mesh(new THREE.CapsuleGeometry(3, 1, 32, 64), smokesMaterial);
+        let smoke3 = new THREE.Mesh(new THREE.CapsuleGeometry(1, 1, 32, 64), smokesMaterial);
+
+        smokes.push(smoke1, smoke2, smoke3);
+        scene.add(smoke1, smoke2, smoke3);
+
         ///////////////////
         var posA = [];
 
@@ -97,7 +109,7 @@
 
         posA.push(pos1, pos2, pos3);
 
-        
+
         var quad1 = makeQuad(ang1(pos1, pos3), ang2(pos1, pos3)); // 1-3 
         var quad2 = makeQuad(ang1(pos2, pos1), ang2(pos2, pos1)); // 2-1 
         var quad3 = makeQuad(ang1(pos3, pos2), ang2(pos3, pos2)); // 3-2 
@@ -118,7 +130,14 @@
         return v;
     }
 
-    function keyframe(t) {
+    function keyframeSetup(t) {
+        keyframe(t, car);
+        keyframe(t - 0.2, smokes[0]);
+        keyframe(t - 0.3, smokes[1]);
+        keyframe(t - 0.4, smokes[2]);
+    }
+
+    function keyframe(t, obj) {
         var s = ((t - ts) % T) / T;
 
         for (var i = 1; i < keys.length; i++) {
@@ -128,13 +147,13 @@
         var ii = i - 1;
         var a = (s - keys[ii][0]) / (keys[ii + 1][0] - keys[ii][0]);
 
-        car.position.lerpVectors(keys[ii][1], keys[ii + 1][1], a);
-        car.quaternion.slerpQuaternions(keys[ii][2], keys[ii + 1][2], a);
+        obj.position.lerpVectors(keys[ii][1], keys[ii + 1][1], a);
+        obj.quaternion.slerpQuaternions(keys[ii][2], keys[ii + 1][2], a);
     }
 
     function animate() {
 
-        keyframe(clock.getElapsedTime());
+        keyframeSetup(clock.getElapsedTime());
 
         requestAnimationFrame(animate);
         renderer.render(scene, camera);
