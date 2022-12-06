@@ -9,8 +9,9 @@
     <div style="float:left; margin-left: 10px; width:32vw;">
 
         <div>
-            Furniture Size:
-            <input id="radius" type="range" min=1 max=20 value=10>
+            Furniture Size: <br>
+            times: 0.5 -> 2(^3) / (defalt = 7)
+            <input id="radius" type="range" min=1 max=20 value=7>
             <span id='radiusPrint'>
             </span>
             <br>
@@ -63,31 +64,32 @@
 
         constructor(size, posa) {
 
+            this.size = size;
             this.me = [];
 
             this.head = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 20), new THREE.MeshNormalMaterial());
             this.head.position.copy(posa);
 
-            this.cylinder = new THREE.Mesh(new THREE.CylinderGeometry(10, 10, 5, 32), new THREE.MeshBasicMaterial({ color: 0xffff00 }));
+            this.cylinder = new THREE.Mesh(new THREE.CylinderGeometry(10 * this.size, 10 * this.size, 5 * this.size, 32), new THREE.MeshBasicMaterial({ color: 0xffff00 }));
             this.cylinder.position.copy(posa);
-            this.cylinder.position.y += 15;
+            this.cylinder.position.y += 15 * this.size;
 
-            this.leg1 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 15, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+            this.leg1 = new THREE.Mesh(new THREE.CylinderGeometry(2 * this.size, 2 * this.size, 15 * this.size, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
             this.leg1.position.copy(posa);
-            this.leg1.position.x += 7.5;
-            this.leg1.position.y += 7.5;
+            this.leg1.position.x += 7.5 * this.size;
+            this.leg1.position.y += 7.5 * this.size;
 
-            this.leg2 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 15, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+            this.leg2 = new THREE.Mesh(new THREE.CylinderGeometry(2 * this.size, 2 * this.size, 15 * this.size, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
             this.leg2.position.copy(posa);
-            this.leg2.position.x -= 7.5 / 2;
-            this.leg2.position.y += 7.5;
-            this.leg2.position.z += 7.5 * Math.sqrt(3) / 2;
+            this.leg2.position.x -= 7.5 / 2 * this.size;
+            this.leg2.position.y += 7.5 * this.size;
+            this.leg2.position.z += 7.5 * Math.sqrt(3) / 2 * this.size;
 
-            this.leg3 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 15, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+            this.leg3 = new THREE.Mesh(new THREE.CylinderGeometry(2 * this.size, 2 * this.size, 15 * this.size, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
             this.leg3.position.copy(posa);
-            this.leg3.position.x -= 7.5 / 2;
-            this.leg3.position.y += 7.5;
-            this.leg3.position.z -= 7.5 * Math.sqrt(3) / 2;
+            this.leg3.position.x -= 7.5 / 2 * this.size;
+            this.leg3.position.y += 7.5 * this.size;
+            this.leg3.position.z -= 7.5 * Math.sqrt(3) / 2 * this.size;
 
             this.me.push(this.head, this.cylinder, this.leg1, this.leg2, this.leg3);
             scene.add(this.head, this.cylinder, this.leg1, this.leg2, this.leg3);
@@ -114,21 +116,21 @@
             this.head.position.copy(posa);
 
             this.cylinder.position.copy(posa);
-            this.cylinder.position.y += 15;
+            this.cylinder.position.y += 15 * this.size;
 
             this.leg1.position.copy(posa);
-            this.leg1.position.x += 7.5;
-            this.leg1.position.y += 7.5;
+            this.leg1.position.x += 7.5 * this.size;
+            this.leg1.position.y += 7.5 * this.size;
 
             this.leg2.position.copy(posa);
-            this.leg2.position.x -= 7.5 / 2;
-            this.leg2.position.y += 7.5;
-            this.leg2.position.z += 7.5 * Math.sqrt(3) / 2;
+            this.leg2.position.x -= 7.5 / 2 * this.size;
+            this.leg2.position.y += 7.5 * this.size;
+            this.leg2.position.z += 7.5 * Math.sqrt(3) / 2 * this.size;
 
             this.leg3.position.copy(posa);
-            this.leg3.position.x -= 7.5 / 2;
-            this.leg3.position.y += 7.5;
-            this.leg3.position.z -= 7.5 * Math.sqrt(3) / 2;
+            this.leg3.position.x -= 7.5 / 2 * this.size;
+            this.leg3.position.y += 7.5 * this.size;
+            this.leg3.position.z -= 7.5 * Math.sqrt(3) / 2 * this.size;
         }
 
         removeMe() {
@@ -214,16 +216,22 @@
     var pickplane;
     var cyl;
     var chooseItem = "chair";
+    var chooseSize = 1;
     var furnitures = [];
     var furnitureParts = [];
     var userStatus = "place";
     var onHand = null;
+
 
     init();
     animate();
 
     $('#radius').change(function () {
         $('#radiusPrint').text($(this).val());
+
+        let takeSize = Number($(this).val());
+        chooseSize = (1.5 / 19 * takeSize) + (8 / 19)
+        console.log(chooseSize);
     });
 
     $('.fclass').click(function () {
@@ -410,7 +418,7 @@
 
     function onDocumentMouseMove(event) {
 
-        event.preventDefault();
+        // event.preventDefault();
 
         var viewportPos = $('#container').get(0).getBoundingClientRect();
         mouse.x = ((event.clientX - viewportPos.left) / $('#container').innerWidth()) * 2 - 1;
@@ -462,9 +470,9 @@
                 cyl.position.copy(intersects[0].point);
                 // buildChair(15, intersects[0].point);
                 if (chooseItem === "chair") {
-                    new Chair(15, intersects[0].point);
+                    new Chair(chooseSize, intersects[0].point);
                 } else {
-                    new Table(15, intersects[0].point);
+                    new Table(chooseSize, intersects[0].point);
                 }
 
             }
