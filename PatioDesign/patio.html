@@ -72,22 +72,22 @@
             this.cylinder.position.copy(posa);
             this.cylinder.position.y += 15;
 
-            this.leg1 = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 15, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+            this.leg1 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 15, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
             this.leg1.position.copy(posa);
             this.leg1.position.x += 7.5;
             this.leg1.position.y += 7.5;
 
-            this.leg2 = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 15, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+            this.leg2 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 15, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
             this.leg2.position.copy(posa);
-            this.leg2.position.x -= 7.5 / Math.sqrt(2);
+            this.leg2.position.x -= 7.5 / 2;
             this.leg2.position.y += 7.5;
-            this.leg2.position.z += 7.5 / Math.sqrt(2);
+            this.leg2.position.z += 7.5 * Math.sqrt(3) / 2;
 
-            this.leg3 = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 15, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+            this.leg3 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 15, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
             this.leg3.position.copy(posa);
-            this.leg3.position.x -= 7.5 / Math.sqrt(2);
+            this.leg3.position.x -= 7.5 / 2;
             this.leg3.position.y += 7.5;
-            this.leg3.position.z -= 7.5 / Math.sqrt(2);
+            this.leg3.position.z -= 7.5 * Math.sqrt(3) / 2;
 
             this.me.push(this.head, this.cylinder, this.leg1, this.leg2, this.leg3);
             scene.add(this.head, this.cylinder, this.leg1, this.leg2, this.leg3);
@@ -121,14 +121,14 @@
             this.leg1.position.y += 7.5;
 
             this.leg2.position.copy(posa);
-            this.leg2.position.x -= 7.5 / Math.sqrt(2);
+            this.leg2.position.x -= 7.5 / 2;
             this.leg2.position.y += 7.5;
-            this.leg2.position.z += 7.5 / Math.sqrt(2);
+            this.leg2.position.z += 7.5 * Math.sqrt(3) / 2;
 
             this.leg3.position.copy(posa);
-            this.leg3.position.x -= 7.5 / Math.sqrt(2);
+            this.leg3.position.x -= 7.5 / 2;
             this.leg3.position.y += 7.5;
-            this.leg3.position.z -= 7.5 / Math.sqrt(2);
+            this.leg3.position.z -= 7.5 * Math.sqrt(3) / 2;
         }
 
         removeMe() {
