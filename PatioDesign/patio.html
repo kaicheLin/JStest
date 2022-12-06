@@ -40,6 +40,8 @@
     <script src="https://threejs.org/build/three.min.js"></script>
     <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
+    <script src="../picture/stone.jfif"></script>
+
 </body>
 <style>
     #container {
@@ -368,6 +370,24 @@
 
         var gridXZ = new THREE.GridHelper(200, 20, 'red', 'white');
         scene.add(gridXZ);
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+        var loader = new THREE.TextureLoader();
+        var floorGroup = new THREE.Group();
+        var grassMap = loader.load('../picture/grass.jpg');
+        var grassAlpha = loader.load('../picture/alphaMap1.png');
+        var grassFloor = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshBasicMaterial({ map: grassMap, transparent: true, alphaMap: grassAlpha }));
+
+        var stoneMap = loader.load('../picture/stone.jfif');
+        var stoneAlpha = loader.load('../picture/alphaMap2.png');
+        var stoneFloor = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshBasicMaterial({ map: stoneMap, transparent: true, alphaMap: stoneAlpha }));
+        floorGroup.add(grassFloor, stoneFloor);
+        scene.add(floorGroup);
+
+        floorGroup.rotation.x = -Math.PI / 2;
+        floorGroup.position.y = -1;
+        ///////////////////////////////////////////////////////////////////////////////
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
 
