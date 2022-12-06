@@ -153,18 +153,19 @@
 
         constructor(size, posa) {
 
+            this.size = size;
             this.me = [];
 
             this.head = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 20), new THREE.MeshNormalMaterial());
             this.head.position.copy(posa);
 
-            this.cylinder = new THREE.Mesh(new THREE.CylinderGeometry(30, 30, 5, 32), new THREE.MeshBasicMaterial({ color: 0xffff00 }));
+            this.cylinder = new THREE.Mesh(new THREE.CylinderGeometry(30 * this.size, 30 * this.size, 5 * this.size, 32), new THREE.MeshBasicMaterial({ color: 0xffff00 }));
             this.cylinder.position.copy(posa);
-            this.cylinder.position.y += 30;
+            this.cylinder.position.y += 30 * this.size;
 
-            this.leg = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 30, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+            this.leg = new THREE.Mesh(new THREE.CylinderGeometry(3 * this.size, 3 * this.size, 30 * this.size, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
             this.leg.position.copy(posa);
-            this.leg.position.y += 15;
+            this.leg.position.y += 15 * this.size;
 
             this.me.push(this.head, this.cylinder, this.leg);
             scene.add(this.head, this.cylinder, this.leg);
@@ -187,11 +188,19 @@
 
         }
 
-        moveMe(pos) {
+        moveMe(posA) {
             for (let i = 0; i < this.me.length; i++) {
-                this.me[i].position.x = pos.x;
-                this.me[i].position.z = pos.z;
+                this.me[i].position.x = posA.x ;
+                this.me[i].position.z = posA.z ;
             }
+
+        //     this.head.position.copy(posA);
+
+        //     this.cylinder.position.copy(posa);
+        //     this.cylinder.position.y += 30 * this.size;
+
+        //     this.leg.position.copy(posa);
+        //     this.leg.position.y += 15 * this.size;
         }
 
         removeMe() {
@@ -356,7 +365,7 @@
 
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(50, ww / hh, 1, 1000);
-        camera.position.z = 500;
+        camera.position.set(200, 200, 200);
         scene.add(camera);
 
         var cyl_geom = new THREE.RingGeometry(5, 10, 32);
@@ -377,7 +386,7 @@
         pickplane.material.visible = false;
 
         var gridXZ = new THREE.GridHelper(200, 20, 'red', 'white');
-        scene.add(gridXZ);
+        // scene.add(gridXZ);
 
         ///////////////////////////////////////////////////////////////////////////////
 
