@@ -57,10 +57,6 @@
 </style>
 <script>
 
-    $('#radius').change(function () {
-        $('#radiusPrint').text($(this).val());
-    });
-
     class Chair {
 
         constructor(size, posa) {
@@ -223,6 +219,10 @@
 
     init();
     animate();
+
+    $('#radius').change(function () {
+        $('#radiusPrint').text($(this).val());
+    });
 
     $('.fclass').click(function () {
         if ($(this).val() === 'chair') {
