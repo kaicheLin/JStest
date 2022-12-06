@@ -10,18 +10,25 @@
 
         <div>
             Furniture Size:
-            <input id="radius" type="range" min=0 max=30 value=15>
+            <input id="radius" type="range" min=1 max=20 value=10>
             <span id='radiusPrint'>
             </span>
             <br>
         </div>
         <br>
+        <div style='background-color:royalblue'>
+            Furnitures Selector:
+            <br>
+            <input type=radio class='fclass' name='f' value='table'> Table <br>
+            <input type=radio class='fclass' name='f' value='chair' checked> Chair <br>
+        </div>
+        <br>
         <div style='background-color:pink'>
             Status Selector:
             <br>
-            <input type=radio class='gclass' id='placing' name='g' value='place' checked> Place <br>
-            <input type=radio class='gclass' name='g' value='move'> Move<br>
-            <input type=radio class='gclass' name='g' value='delete'> Delete<br>
+            <input type=radio class='gclass' name='g' value='place' id='placing' checked> Place <br>
+            <input type=radio class='gclass' name='g' value='move'> Move <br>
+            <input type=radio class='gclass' name='g' value='delete'> Delete <br>
         </div>
         <br>
         <button id='clear' style="width:45%">Clear</button>
@@ -35,7 +42,18 @@
 
 </body>
 <style>
+    #container {
+        width: 60vw;
+        height: 60vw;
+        float: left;
+        background-color: pink;
+        margin: 10px;
+    }
 
+    p {
+        margin: 10px;
+        text-align: justify;
+    }
 </style>
 <script>
 
@@ -43,18 +61,177 @@
         $('#radiusPrint').text($(this).val());
     });
 
+    class Chair {
 
+        constructor(size, posa) {
+
+            this.me = [];
+
+            this.head = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 20), new THREE.MeshNormalMaterial());
+            this.head.position.copy(posa);
+
+            this.cylinder = new THREE.Mesh(new THREE.CylinderGeometry(10, 10, 5, 32), new THREE.MeshBasicMaterial({ color: 0xffff00 }));
+            this.cylinder.position.copy(posa);
+            this.cylinder.position.y += 15;
+
+            this.leg1 = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 15, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+            this.leg1.position.copy(posa);
+            this.leg1.position.x += 7.5;
+            this.leg1.position.y += 7.5;
+
+            this.leg2 = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 15, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+            this.leg2.position.copy(posa);
+            this.leg2.position.x -= 7.5 / Math.sqrt(2);
+            this.leg2.position.y += 7.5;
+            this.leg2.position.z += 7.5 / Math.sqrt(2);
+
+            this.leg3 = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 15, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+            this.leg3.position.copy(posa);
+            this.leg3.position.x -= 7.5 / Math.sqrt(2);
+            this.leg3.position.y += 7.5;
+            this.leg3.position.z -= 7.5 / Math.sqrt(2);
+
+            this.me.push(this.head, this.cylinder, this.leg1, this.leg2, this.leg3);
+            scene.add(this.head, this.cylinder, this.leg1, this.leg2, this.leg3);
+
+            var prop = {
+                type: "chair",
+                size: size,
+                pos: [this.head.position.x, this.head.position.z]
+            };
+
+            console.log(prop);
+            this.name = JSON.stringify(prop);
+            console.log(this.name);
+
+            furnitures.push(this);
+
+            for (let i = 0; i < this.me.length; i++) {
+                furnitureParts.push(this.me[i]);
+            }
+
+        }
+
+        moveMe(posa) {
+            this.head.position.copy(posa);
+
+            this.cylinder.position.copy(posa);
+            this.cylinder.position.y += 15;
+
+            this.leg1.position.copy(posa);
+            this.leg1.position.x += 7.5;
+            this.leg1.position.y += 7.5;
+
+            this.leg2.position.copy(posa);
+            this.leg2.position.x -= 7.5 / Math.sqrt(2);
+            this.leg2.position.y += 7.5;
+            this.leg2.position.z += 7.5 / Math.sqrt(2);
+
+            this.leg3.position.copy(posa);
+            this.leg3.position.x -= 7.5 / Math.sqrt(2);
+            this.leg3.position.y += 7.5;
+            this.leg3.position.z -= 7.5 / Math.sqrt(2);
+        }
+
+        removeMe() {
+            for (let i = 0; i < this.me.length; i++) {
+                this.me[i].removeFromParent();
+            }
+        }
+
+        isInMe(objA) {
+            for (let i = 0; i < this.me.length; i++) {
+                if (this.me[i] === objA) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    class Table {
+
+        constructor(size, posa) {
+
+            this.me = [];
+
+            this.head = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 20), new THREE.MeshNormalMaterial());
+            this.head.position.copy(posa);
+
+            this.cylinder = new THREE.Mesh(new THREE.CylinderGeometry(30, 30, 5, 32), new THREE.MeshBasicMaterial({ color: 0xffff00 }));
+            this.cylinder.position.copy(posa);
+            this.cylinder.position.y += 30;
+
+            this.leg = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 30, 32), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+            this.leg.position.copy(posa);
+            this.leg.position.y += 15;
+
+            this.me.push(this.head, this.cylinder, this.leg);
+            scene.add(this.head, this.cylinder, this.leg);
+
+            var prop = {
+                type: "table",
+                size: size,
+                pos: [this.head.position.x, this.head.position.z]
+            };
+
+            console.log(prop);
+            this.name = JSON.stringify(prop);
+            console.log(this.name);
+
+            furnitures.push(this);
+
+            for (let i = 0; i < this.me.length; i++) {
+                furnitureParts.push(this.me[i]);
+            }
+
+        }
+
+        moveMe(pos) {
+            for (let i = 0; i < this.me.length; i++) {
+                this.me[i].position.x = pos.x;
+                this.me[i].position.z = pos.z;
+            }
+        }
+
+        removeMe() {
+            for (let i = 0; i < this.me.length; i++) {
+                this.me[i].removeFromParent();
+            }
+        }
+
+        isInMe(objA) {
+            for (let i = 0; i < this.me.length; i++) {
+                if (this.me[i] === objA) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
 
     var camera, scene, renderer, controls;
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
     var pickplane;
     var cyl;
+    var chooseItem = "chair";
     var furnitures = [];
+    var furnitureParts = [];
     var userStatus = "place";
+    var onHand = null;
 
     init();
     animate();
+
+    $('.fclass').click(function () {
+        if ($(this).val() === 'chair') {
+            chooseItem = "chair";
+        } else {
+            // delete
+            chooseItem = "table";
+        }
+    });
 
     $('.gclass').click(function () {
         if ($(this).val() === 'place') {
@@ -69,11 +246,13 @@
 
     $('#clear').click(function () {
 
-        furnitures.forEach(function (sphere) {
-            scene.remove(sphere);
+        furnitures.forEach(function (thing) {
+            // scene.remove(thing);
+            thing.removeMe();
         });
 
         furnitures = [];
+        furnitureParts = [];
 
     });
 
@@ -81,8 +260,8 @@
 
         var states = [];
 
-        furnitures.forEach(function (sphere) {
-            states.push(sphere.name);
+        furnitures.forEach(function (thing) {
+            states.push(thing.name);
         });
 
         localStorage.setItem('stateStr', JSON.stringify(states));
@@ -96,34 +275,63 @@
         states.forEach(function (stateStr) {
             console.log(stateStr);
             var state = JSON.parse(stateStr);
-            if (state.type === "chair") {
-                buildChair(state.size, new THREE.Vector3(state.pos[0], 0, state.pos[1]));
+            if (state.type === "table") {
+                new Table(state.size, new THREE.Vector3(state.pos[0], 0, state.pos[1]));
+            } else {
+                // buildChair(state.size, new THREE.Vector3(state.pos[0], 0, state.pos[1]));
+                new Chair(state.size, new THREE.Vector3(state.pos[0], 0, state.pos[1]));
             }
 
         });
 
     });
 
-    function buildChair(size, pos) {
 
-        var chair = new THREE.Mesh(new THREE.SphereGeometry(size, 20, 20), new THREE.MeshNormalMaterial());
+    // function buildChair(size, pos) {
 
-        scene.add(chair);
+    //     var chair = new THREE.Mesh(new THREE.SphereGeometry(size, 20, 20), new THREE.MeshNormalMaterial());
 
-        var prop = {
-            type: "chair",
-            size: size,
-            pos: [pos.x, pos.z]
-        };
+    //     scene.add(chair);
 
-        console.log(prop);
-        chair.name = JSON.stringify(prop);
-        console.log(chair.name);
+    //     chair.position.copy(pos);
 
-        furnitures.push(chair);
-        chair.position.copy(pos);
+    //     var prop = {
+    //         type: "chair",
+    //         size: size,
+    //         pos: [chair.position.x, chair.position.z]
+    //     };
 
-    }
+    //     console.log(prop);
+    //     chair.name = JSON.stringify(prop);
+    //     console.log(chair.name);
+
+    //     furnitures.push(chair);
+
+
+    // }
+
+    // function buildTable(size, pos) {
+
+    //     var table = new THREE.Mesh(new THREE.SphereGeometry(size, 20, 20), new THREE.MeshNormalMaterial());
+
+    //     scene.add(table);
+
+    //     table.position.copy(pos);
+
+    //     var prop = {
+    //         type: "table",
+    //         size: size,
+    //         pos: [table.position.x, table.position.z]
+    //     };
+
+    //     console.log(prop);
+    //     table.name = JSON.stringify(prop);
+    //     console.log(table.name);
+
+    //     furnitures.push(table);
+
+
+    // }
 
     function init() {
 
@@ -165,7 +373,10 @@
 
         window.addEventListener('resize', onWindowResize, false);
         window.addEventListener('mousemove', onDocumentMouseMove, false);
-        window.addEventListener('mousedown', onDocumentMouseDown, true);
+        window.addEventListener('mousedown', onDocumentMouseDown, false);
+        window.addEventListener('mouseup', onDocumentMouseUp, false);
+
+        /////////////////////////////////////////////////////////////////////////////////////////
     }
 
     function onWindowResize() {
@@ -192,6 +403,23 @@
             cyl.position.copy(intersects[0].point);
             cyl.position.y = 2;
         }
+
+        if (userStatus === "move") {
+            if (onHand === null) return;
+
+            var viewportPos = $('#container').get(0).getBoundingClientRect();
+            mouse.x = ((event.clientX - viewportPos.left) / $('#container').innerWidth()) * 2 - 1;
+            mouse.y = -((event.clientY - viewportPos.top) / $('#container').innerHeight()) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            var intersects = raycaster.intersectObject(pickplane);
+            if (intersects.length > 0) {
+                controls.enabled = false;  // to disable camera movement
+                // onHand.position.copy(intersects[0].point);
+                onHand.moveMe(intersects[0].point);
+            }
+        }
+
     }
 
     function onDocumentMouseDown(event) {
@@ -212,33 +440,111 @@
 
             if (intersects.length > 0) {
                 cyl.position.copy(intersects[0].point);
-                buildChair(15, intersects[0].point);
+                // buildChair(15, intersects[0].point);
+                if (chooseItem === "chair") {
+                    new Chair(15, intersects[0].point);
+                } else {
+                    new Table(15, intersects[0].point);
+                }
+
             }
+
+        } else if (userStatus === "move") { // move
+
+            console.log("now moveing");
+
+            var intersects = raycaster.intersectObjects(furnitureParts);
+
+            if (intersects.length > 0) {
+                // onHand = intersects[0].object;
+                let theFurniturePart = intersects[0].object;
+
+                for (let i = 0; i < furnitures.length; i++) {
+                    if (furnitures[i].isInMe(theFurniturePart)) {
+                        var theFurniture = furnitures[i];
+                        break;
+                    }
+                }
+
+                onHand = theFurniture;
+            }
+
+            console.log("now moveing finish");
+
         } else { // delete
 
             console.log("now deleting");
 
-            var intersects = raycaster.intersectObjects(furnitures);
+            console.log(furnitures);
+            console.log(furnitureParts);
+
+            var intersects = raycaster.intersectObjects(furnitureParts);
 
             if (intersects.length > 0) {
-                let theFurniture = intersects[0].object;
+                let theFurniturePart = intersects[0].object;
 
-                //scene.remove(thePuck);
-                theFurniture.removeFromParent();
+                for (let i = 0; i < furnitures.length; i++) {
+                    if (furnitures[i].isInMe(theFurniturePart)) {
+                        var theFurniture = furnitures[i];
+                        break;
+                    }
+                }
 
-                // remove thePuck from pucks
+                // theFurniture.removeFromParent();
+                theFurniture.removeMe();
+
                 for (let i = 0; i < furnitures.length; i++) {
                     if (furnitures[i] === theFurniture) {
+
+                        for (let j = 0; j < furnitureParts.length; j++) {
+                            if (furnitures[i].isInMe(furnitureParts[j])) {
+                                furnitureParts.splice(j, 1);
+                                j--;
+                            }
+                        }
+
                         furnitures.splice(i, 1);
                         break;
                     }
                 }
+
+
 
             }
 
         }
 
     }
+
+    function onDocumentMouseUp(event) {
+
+        event.preventDefault();
+
+        if (onHand != null) {
+
+            for (let i = 0; i < furnitures.length; i++) {
+                if (furnitures[i] === onHand) {
+
+                    let propI = JSON.parse(furnitures[i].name);
+                    propI.pos = [onHand.head.position.x, onHand.head.position.z];
+
+                    furnitures[i].name = JSON.stringify(propI);
+
+                    console.log(furnitures[i].name);
+
+                    console.log(onHand.head.position);
+
+                    break;
+                }
+            }
+
+            onHand = null;
+            controls.enabled = true;
+
+        }
+
+    }
+
 
     function animate() {
 
