@@ -1,0 +1,31 @@
+<html>
+
+<body>
+    <div id="info">Keyframe Movement</div>
+</body>
+
+<style>
+    #info {
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        color: #ffff00
+    }
+
+    body {
+        overflow: hidden;
+    }
+</style>
+
+<script type="module">
+
+    import * as myInit from "./init.js";
+
+    myInit.init();
+    myInit.animate();
+
+</script>
+
+</html>
