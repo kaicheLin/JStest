@@ -128,15 +128,7 @@
         }
 
         //////////////////////////////////////////////////////////////////
-        // var xs = [];
 
-        // for (let i = 0; i < k1.length; i++) {
-        //     xs[i] = (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]) / 6;
-        // }
-
-        // console.log("xs = " + xs);
-
-        //////////////////////////////////////////////////////////////////
         let f5 = deriv(k1);
         let f6 = deriv(k2);
         let f7 = deriv(k3);
@@ -198,6 +190,7 @@
         x3.push(20);
         x3.push(0);
 
+        // setTimeout(animate, 100);
     }
 
     function setInMesh(y) {
@@ -247,17 +240,55 @@
 
     function animate() {
 
-        // animate.f = (animate.f === undefined) ? 0 : animate.f;
+        ///////////////////////////////////////////////////////////////////////////////////
         // animate.i = (animate.i === undefined) ? 0 : animate.i;
         // animate.i++;
-        // animate.val = (animate.val === undefined) ? 0 : animate.val;
 
-        // if (x[0] > 21 && animate.f === 0) { console.log(animate.i); animate.f++ }
-        // if (Math.abs(x2[0]) > animate.val) { console.log(Math.abs(x2[0])); animate.val = Math.abs(x2[0]); }
+        // var a, b;
+
+        // animate.val = (animate.val === undefined) ? 0 : animate.val;
+        // // if (Math.abs(x2[0]) > animate.val && 21 > Math.abs(x2[0])) { console.log(Math.abs(x2[0])); animate.val = Math.abs(x2[0]); }
+        // if ((a = Math.abs(x2[0])) > animate.val && 21 > a) { console.log(a); animate.val = a; }
+
+        // animate.val2 = (animate.val2 === undefined) ? 0 : animate.val2;
+        // // if (Math.abs(x3[0]) > animate.val2 && 21 > Math.abs(x3[0])) { console.log(Math.abs(x3[0])); animate.val2 = Math.abs(x3[0]); }
+        // if ((b = Math.abs(x3[0])) > animate.val2 && 21 > b) { console.log(b); animate.val2 = b; }
+
+        // animate.f = (animate.f === undefined) ? 0 : animate.f;
+        // animate.f2 = (animate.f2 === undefined) ? 0 : animate.f2;
+        // animate.f3 = (animate.f3 === undefined) ? 0 : animate.f3;
+
+        // if (x[0] > 21 && animate.f < 3) { console.log("x[0]>" + animate.i); animate.f++; }
+        // if (x2[0] > 21 && animate.f2 < 3) { console.log("x2[0]>" + animate.i); animate.f2++; }
+        // if (x3[0] > 21 && animate.f3 < 3) { console.log("x3[0]>" + animate.i); animate.f3++; }
+
+        animate.number = (animate.number === undefined) ? 0 : animate.number;
+        animate.time = (animate.time === undefined) ? 0 : animate.time;
+        animate.check = (animate.check === undefined) ? 0 : animate.check;
+
+
+        if (animate.number * x3[0] < 0) {
+            console.log("in fun");
+            if (animate.check === 0) {
+                animate.time = Date.now();
+                animate.check++;
+            } else if (animate.check < 2) {
+                animate.check++;
+            } else {
+                let timeL = Date.now();
+                console.log("T- = " + (timeL - animate.time) / 1000);
+                console.log("T+ = " + 2 * Math.PI * Math.sqrt(m / k));
+                animate.check = 0;
+            }
+        }
+
+        animate.number = x3[0];
+        ///////////////////////////////////////////////////////////////////////////////////
 
         var dt = clock.getDelta();
-        // var dt = 0.1;
-        // if (dt > 0.01) console.log(dt);
+        // var dt = 0.01;
+
+        if (dt > 0.01) console.log(dt);
 
         ODESolver(dt);
         ODESolver2(dt);
@@ -271,7 +302,7 @@
         check2.position.setX(x2[0]);
         check3.position.setX(x3[0]);
 
-
+        // console.log(x3[0]);
 
         requestAnimationFrame(animate);
         render();
