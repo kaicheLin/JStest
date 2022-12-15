@@ -1,0 +1,285 @@
+<html>
+
+<body>
+
+    <div id="info">Spring (hw5 helper) <br />
+        <a href="javascript:reset();">reset</a>
+    </div>
+    <script src="https://threejs.org/build/three.min.js"></script>
+</body>
+
+<style>
+    #info {
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        color: #ffff00
+    }
+
+    body {
+        overflow: hidden;
+    }
+</style>
+<script>
+
+    var camera, scene, renderer;
+    var mesh, mesh2, mesh3;
+    var check, check2, check3;
+    var clock = new THREE.Clock();
+
+    var m = 1, k = 5, c = 0;
+    var x = [];
+    var x2 = [], x2mid = [];
+    var x3 = [], k1 = [], k2 = [], k3 = [], k4 = [];
+
+    function reset() {
+        console.log('in reset');
+        x[0] = 20, x[1] = 0;
+        x2[0] = 20, x2[1] = 0;
+        x3[0] = 20, x3[1] = 0;
+    }
+
+    function deriv(x) {
+        let ff = [];
+        ff.push(x[1]);                  // x_dot = v;
+        ff.push(-(c * x[1] + k * x[0]) / m);  // v_dot = 1/m *(-cx_dot -kx)
+        return ff;
+    }
+
+    function ODESolver(dt) {
+
+        // y# : postion
+        // k : 彈簧常數
+        // c : 阻尼常數
+
+        // dy/dt = v
+        // d2y/dt2 = dv/dt = a
+
+        // ma = - ( kx + cv )
+        // a = - ( kx + cv ) / m
+        // this moment : y0 = f( t )
+
+        //////////////////////////////////////////////////////////////////
+
+        // Euler next moment
+        // y1 = f( t + $t ) = f( t ) + dy/dt * $t
+
+        let f = deriv(x);
+
+        for (let i = 0; i < f.length; i++) {
+            x[i] += f[i] * dt;
+        }
+
+        //////////////////////////////////////////////////////////////////
+
+    }
+
+    function ODESolver2(dt) {
+
+        // Mid-point next moment
+        // y1 = f( t + $t ) = f( t ) + d( y + 1/2 $t )/dt * $t
+
+        let f1 = deriv(x2);
+
+        for (let i = 0; i < f1.length; i++) {
+            x2mid[i] = x2[i] + f1[i] * dt / 2;
+        }
+
+        //////////////////////////////////////////////////////////////////
+
+        let f2 = deriv(x2mid);
+
+
+        for (let i = 0; i < f2.length; i++) {
+            x2[i] += f2[i] * dt;
+        }
+
+
+    }
+
+    function ODESolver3(dt) {
+
+        // let f1 = deriv(x3);
+
+        for (let i = 0; i < x3.length; i++) {
+            k1[i] = x3[i];
+        }
+
+        let f2 = deriv(k1);
+        // let f2 = k1;
+
+        for (let i = 0; i < f2.length; i++) {
+            k2[i] = x3[i] + f2[i] * dt / 2;
+        }
+
+        let f3 = deriv(k2);
+        // let f3 = k2;
+
+        for (let i = 0; i < f3.length; i++) {
+            k3[i] = x3[i] + f3[i] * dt / 2;
+        }
+
+        let f4 = deriv(x3);
+
+        for (let i = 0; i < f4.length; i++) {
+            k4[i] = x3[i] + f4[i] * dt;
+        }
+
+        //////////////////////////////////////////////////////////////////
+        // var xs = [];
+
+        // for (let i = 0; i < k1.length; i++) {
+        //     xs[i] = (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]) / 6;
+        // }
+
+        // console.log("xs = " + xs);
+
+        //////////////////////////////////////////////////////////////////
+        let f5 = deriv(k1);
+        let f6 = deriv(k2);
+        let f7 = deriv(k3);
+        let f8 = deriv(k4);
+
+        // console.log("f5 = " + f5);
+        // console.log("f6 = " + f6);
+        // console.log("f7 = " + f7);
+        // console.log("f8 = " + f8);
+        // console.log("");
+
+        for (let i = 0; i < k1.length; i++) {
+            x3[i] += (f5[i] + 2 * f6[i] + 2 * f7[i] + f8[i]) / 6 * dt;
+        }
+
+    }
+
+
+    init();
+    animate();
+
+    function init() {
+        scene = new THREE.Scene();
+
+        camera = new THREE.OrthographicCamera(-50, 50, 50, -50, -10, 10);
+        camera.position.z = 10;
+        scene.add(camera);
+
+        mesh = setInMesh(30);
+        var border = setInBorder(30);
+
+        mesh2 = setInMesh(0);
+        var border2 = setInBorder(0);
+
+        mesh3 = setInMesh(-30);
+        var border3 = setInBorder(-30);
+
+        scene.add(mesh, border, mesh2, border2, mesh3, border3);
+
+        check = setInCheckLine(0xffffff);
+        check2 = setInCheckLine(0x000000);
+        check3 = setInCheckLine();
+
+        scene.add(check, check2, check3);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x888888);
+
+        document.body.appendChild(renderer.domElement);
+
+        // INITIIALIZE ODE
+        x.push(20);
+        x.push(0);
+
+        x2.push(20);
+        x2.push(0);
+
+        x3.push(20);
+        x3.push(0);
+
+    }
+
+    function setInMesh(y) {
+
+        let mesh = new THREE.Mesh(new THREE.CircleGeometry(1, 10), new THREE.MeshBasicMaterial());
+        mesh.position.y = y;
+
+        return mesh;
+
+    }
+
+    function setInBorder(y) {
+
+        var material = new THREE.LineBasicMaterial({
+            color: 0x0000ff
+        });
+
+        var geometry = new THREE.BufferGeometry();
+        var points = [];
+        points.push(
+            new THREE.Vector3(-40, y, 0),
+            new THREE.Vector3(40, y, 0));
+        geometry.setFromPoints(points);
+
+        let border = new THREE.Line(geometry, material);
+
+        return border;
+    }
+
+    function setInCheckLine(color = 0xff0000) {
+
+        var material = new THREE.LineBasicMaterial({
+            color: 0xff0000
+        });
+
+        var geometry = new THREE.BufferGeometry();
+        var points = [];
+        points.push(
+            new THREE.Vector3(0, 40, 0),
+            new THREE.Vector3(0, -40, 0));
+        geometry.setFromPoints(points);
+
+        let border = new THREE.Line(geometry, material);
+
+        return border;
+    }
+
+    function animate() {
+
+        // animate.f = (animate.f === undefined) ? 0 : animate.f;
+        // animate.i = (animate.i === undefined) ? 0 : animate.i;
+        // animate.i++;
+        animate.val = (animate.val === undefined) ? 0 : animate.val;
+
+        // if (x[0] > 21 && animate.f === 0) { console.log(animate.i); animate.f++ }
+        if (Math.abs(x2[0]) > animate.val) { console.log(Math.abs(x2[0])); animate.val = Math.abs(x2[0]); }
+
+        // var dt = clock.getDelta();
+        var dt = 0.1;
+        // if (dt > 0.01) console.log(dt);
+
+        ODESolver(dt);
+        ODESolver2(dt);
+        ODESolver3(dt);
+
+        mesh.position.setX(x[0]);
+        mesh2.position.setX(x2[0]);
+        mesh3.position.setX(x3[0]);
+
+        check.position.setX(x[0]);
+        check2.position.setX(x2[0]);
+        check3.position.setX(x3[0]);
+
+
+
+        requestAnimationFrame(animate);
+        render();
+    }
+
+    function render() {
+        renderer.render(scene, camera);
+    }
+</script>
+
+</html>
