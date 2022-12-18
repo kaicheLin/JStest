@@ -36,7 +36,7 @@ function animate() {
   alpha += 0.01;
 
   theBox.position.set(60 * Math.sin(alpha), 10, 60 * Math.cos(alpha));
-
+  theBox.rotation.y = alpha;
 
   requestAnimationFrame(animate);
   renderer.render(scene, camera);

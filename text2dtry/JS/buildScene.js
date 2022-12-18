@@ -20,18 +20,20 @@ function buildScene() {
 
    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   let text2 = new MeshText2D("M-box-中文", {
+   let text2 = new MeshText2D("M-box", {
       align: textAlign.center,
       font: '10px Arial',
       fillStyle: '#00ffff',
       antialias: true
    });
 
-   text2.position.set(0, 10, 5);
+   text2.position.set(0, 10, 5.01);
    text2.scale.set(1.5, 1.5, 1.5);
    // scene.add(text2);
 
-   let spriteWord = "S-box\n中文\\";
+   let spriteWord = "S-box \n";
+   spriteWord += "\\這是中文\/ \n";
+   spriteWord += "mark \⦻ \❦ \❧ \✴ \✵ ";
 
    let sprite = new SpriteText2D(spriteWord, {
       align: textAlign.center,
@@ -41,7 +43,7 @@ function buildScene() {
    });
 
    sprite.position.set(0, 30, 0);
-   sprite.scale.set(1.5, 1.5, 1.5);
+   sprite.scale.set(0.5, 0.5, 0.5);
    // scene.add(sprite);
 
    theBox.add(text2, sprite, box);
