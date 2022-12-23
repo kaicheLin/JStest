@@ -1,0 +1,297 @@
+<html>
+
+<head>
+  <title>Three.js app</title>
+</head>
+
+<body>
+
+
+  <div id="container" style="margin-top: 20px; height: 400px; width: 400px; border: solid 1px gray;">
+    <input type="range" id="slide" oninput="circleAdjustment()" min=5 max=15 value=10>
+    <button id='switch'>Go/Stop</button>
+  </div>
+
+  <audio id="musicplay" >
+    <source src="https://raw.githubusercontent.com/kaicheLin/JStest/master/music/W_sound4.wav" type='audio/wav'>
+</audio>
+
+  <script src="https://threejs.org/build/three.min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+  <script>
+
+    function getPos() {
+      // Call api 
+      // Need to be replaced by a public ip address
+      $.get("http://127.0.0.1:1387/api?posx=" + posx + "&posy=" + posy + "&r=" + r + "&minx=" + minx + "&miny=" + miny + "&maxx=" + maxx + "&maxy=" + maxy, function (data) {
+        if (data && data.output) {
+          var coords = data.output.split(" ");
+          if (coords[0] == 1) {
+            circle.material.color.set('cyan');
+            console.log("touch !! 1");
+            makeSound();
+          }
+          else {
+            soundOff = false;
+
+            circle.material.color.set('yellow');
+            console.log("leave !! 0");
+          }
+        }
+      });
+    }
+
+
+    $('#switch').click(function () {
+      if (ballswitch === true) {
+        ballswitch = false;
+        tempx = vel.x;
+        tempy = vel.y;
+        vel.x = 0
+        vel.y = 0
+      }
+      else {
+        ballswitch = true;
+        vel.x = tempx
+        vel.y = tempy
+      }
+
+    })
+
+
+    var tempx = 0, tempy = 0;
+    var ballswitch = true
+    var posx, posy
+    var minx
+    var miny
+    var maxx
+    var maxy
+    var scene, renderer, camera;
+    var plane, circle, pos, vel, r = 10;
+    var box;
+    var mouse = new THREE.Vector2();
+    var raycaster = new THREE.Raycaster();
+    var boxs = [];
+    var theBox;
+    var controls; // move to global, for changing controls
+
+    var soundOff = true;
+
+    init();
+    animate();
+
+    function circleAdjustment() {
+      scene.remove(circle);
+      r = document.getElementById("slide").value;
+      circle = new THREE.Mesh(new THREE.SphereGeometry(r, 32, 16), new THREE.MeshBasicMaterial({
+        //color: 'yellow'
+      }));
+      circle.position.set(500, 500, 500)
+
+      scene.add(circle);
+    }
+
+    function init() {
+
+      renderer = new THREE.WebGLRenderer({
+        antialias: true
+      });
+      var ww = $('#container').innerWidth();
+      var hh = $('#container').innerHeight();
+      renderer.setSize(ww, hh);
+      renderer.setClearColor(0x555555);
+      $('#container').append(renderer.domElement);
+
+      scene = new THREE.Scene();
+
+      camera = new THREE.PerspectiveCamera(45, ww / hh, 1, 10000);
+      camera.position.set(0, 0, 250);
+      camera.lookAt(new THREE.Vector3(0, -10, 0));
+
+
+      var cyl_geom = new THREE.BoxGeometry(40, 20, 20);
+      var cyl_mat = new THREE.MeshNormalMaterial();
+      box = new THREE.Mesh(cyl_geom, cyl_mat);
+      box.position.set(0, 0, 0);
+      scene.add(box);
+      boxs.push(box);
+      //controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+
+      // build an invisible plane, overlapping the grid
+      plane = new THREE.Mesh(
+        new THREE.PlaneBufferGeometry(160, 160, 8, 8),
+        new THREE.MeshBasicMaterial({
+          color: 0xff0000,
+          opacity: 0.25,
+          transparent: true
+        }));
+      //plane.rotation.x = -Math.PI / 2;
+      plane.material.visible = true; // invisible, for picking only
+      scene.add(plane);
+
+
+
+      circle = new THREE.Mesh(new THREE.SphereGeometry(10, 32, 16), new THREE.MeshBasicMaterial({
+        color: 'yellow'
+      }));
+      scene.add(circle);
+
+      pos = new THREE.Vector3(50, 50, 0);
+      vel = new THREE.Vector3(10, 21);
+
+
+      scene.add(circle);
+      let wall = new THREE.Mesh(new THREE.BoxGeometry(10, 180, 20), new THREE.MeshNormalMaterial());
+      wall.position.set(85, 0, 0);
+      scene.add(wall);
+
+      let wall2 = new THREE.Mesh(new THREE.BoxGeometry(10, 180, 20), new THREE.MeshNormalMaterial());
+      wall2.position.set(-85, 0, 0);
+      scene.add(wall2);
+
+      let wall3 = new THREE.Mesh(new THREE.BoxGeometry(10, 160, 20), new THREE.MeshNormalMaterial());
+      wall3.position.set(0, -85, 0);
+      wall3.rotation.z = Math.PI / 2
+      scene.add(wall3);
+
+      let wall4 = new THREE.Mesh(new THREE.BoxGeometry(10, 160, 20), new THREE.MeshNormalMaterial());
+      wall4.position.set(0, 85, 0);
+      wall4.rotation.z = Math.PI / 2
+      scene.add(wall4);
+
+
+
+      window.addEventListener('resize', onWindowResize, false);
+      $('#container').on("pointerdown", onMouseDown);
+      $('#container').on("pointermove", onMouseMove);
+      $('#container').on("pointerup", onMouseUp);
+
+      theBox = null;
+    }
+
+    function onWindowResize() {
+      var ww = $('#container').innerWidth();
+      var hh = $('#container').innerHeight();
+      camera.aspect = ww / hh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(ww, hh);
+    }
+
+    function onMouseDown(event) {
+      var viewportPos = $('#container').get(0).getBoundingClientRect();
+      mouse.x = ((event.clientX - viewportPos.left) / $('#container').innerWidth()) * 2 - 1;
+      mouse.y = -((event.clientY - viewportPos.top) / $('#container').innerHeight()) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+
+      var intersects = raycaster.intersectObjects(boxs);
+      if (intersects.length > 0) {
+        theBox = intersects[0].object;
+      }
+
+    }
+
+    function onMouseUp(event) {
+      theBox = null;
+    }
+
+
+    function onMouseMove(event) {
+      event.preventDefault();
+      if (theBox === null) return;
+
+      var viewportPos = $('#container').get(0).getBoundingClientRect();
+      mouse.x = ((event.clientX - viewportPos.left) / $('#container').innerWidth()) * 2 - 1;
+      mouse.y = -((event.clientY - viewportPos.top) / $('#container').innerHeight()) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      var intersects = raycaster.intersectObject(plane);
+      if (intersects.length > 0) {
+        theBox.position.copy(intersects[0].point);
+      }
+
+    }
+
+    function changeColor() {
+      if (circle.material.color.b === 0)
+        circle.material.color.set('cyan');
+      else
+        circle.material.color.set('yellow');
+
+    }
+
+    function makeSound() {
+      if (soundOff) return;
+
+      console.log("sound !!! ");
+
+      let musicplay = document.getElementById("musicplay");
+        musicplay.play();
+
+      // var audio = document.createElement("audio");
+      // audio.src = "./W_sound4.wav";
+      // audio.play();
+
+      // $.get("http://127.0.0.1:1387/play", function () {
+      //   console.log("playing");
+      // })
+
+      soundOff = true;
+    }
+
+    function animate() {
+
+      animate.takeTime = (animate.takeTime === undefined) ? 0 : animate.takeTime;
+
+      requestAnimationFrame(animate);
+      render();
+      var dt = 0.0005;
+      pos.add(vel.clone().multiplyScalar(dt));
+
+      r2 = r * -1  //在算式裡用+的有時候會變字串 
+
+      if (pos.x > 80 - r && vel.x > 0) {
+        vel.x *= -1;
+
+      }
+      if (pos.x < -80 - r2 && vel.x < 0) {
+        vel.x *= -1;
+
+      }
+      if (pos.y > 80 - r && vel.y > 0) {
+        vel.y *= -1;
+
+      }
+      if (pos.y < -80 - r2 && vel.y < 0) {
+        vel.y *= -1;
+
+      }
+
+      minx = box.position.x - 20;
+      miny = box.position.y - 10;
+      maxx = box.position.x + 20;
+      maxy = box.position.y + 10;
+      posx = pos.x;
+      posy = pos.y;
+      circle.position.copy(pos);
+
+      animate.takeTime++;
+      if (animate.takeTime === 20) {
+        animate.takeTime = 0;
+        getPos();
+      }
+
+    }
+
+    function render() {
+      renderer.render(scene, camera);
+    }
+
+
+
+  </script>
+</body>
+
+</html>
