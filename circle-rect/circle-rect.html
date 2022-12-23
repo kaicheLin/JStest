@@ -1,15 +1,18 @@
 <html>
 
 <head>
-  <title>Three.js app</title>
+
 </head>
 
 <body>
 
+  <div>
+    <h1> Circle Rectangle Touch<br>
+      <input type="range" id="slide" oninput="circleAdjustment()" min=5 max=15 value=10>
+      <button id='switch'>Go/Stop</button>
+  </div>
 
   <div id="container" style="margin-top: 20px; height: 400px; width: 400px; border: solid 1px gray;">
-    <input type="range" id="slide" oninput="circleAdjustment()" min=5 max=15 value=10>
-    <button id='switch'>Go/Stop</button>
   </div>
 
   <audio id="musicplay">
@@ -61,20 +64,15 @@
 
 
     var tempx = 0, tempy = 0;
-    var ballswitch = true
-    var posx, posy
-    var minx
-    var miny
-    var maxx
-    var maxy
+    var ballswitch = true;
+    var posx, posy, minx, miny, maxx, maxy;
     var scene, renderer, camera;
     var plane, circle, pos, vel, r = 10;
     var box;
     var mouse = new THREE.Vector2();
     var raycaster = new THREE.Raycaster();
-    var boxs = [];
-    var theBox;
-    var controls; // move to global, for changing controls
+
+    var onHand;
 
     var soundOff = true;
 
@@ -103,6 +101,8 @@
       renderer.setClearColor(0x555555);
       $('#container').append(renderer.domElement);
 
+      ////////////////////////////////////////////////
+
       scene = new THREE.Scene();
 
       camera = new THREE.PerspectiveCamera(45, ww / hh, 1, 10000);
@@ -110,20 +110,20 @@
       camera.lookAt(new THREE.Vector3(0, -10, 0));
 
 
-      var cyl_geom = new THREE.BoxGeometry(40, 20, 20);
-      var cyl_mat = new THREE.MeshNormalMaterial();
-      box = new THREE.Mesh(cyl_geom, cyl_mat);
+      var boxGeom = new THREE.BoxGeometry(40, 20, 20);
+      var boxMat = new THREE.MeshNormalMaterial();
+
+      box = new THREE.Mesh(boxGeom, boxMat);
       box.position.set(0, 0, 0);
+
       scene.add(box);
-      boxs.push(box);
-      //controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 
       // build an invisible plane, overlapping the grid
       plane = new THREE.Mesh(
         new THREE.PlaneBufferGeometry(160, 160, 8, 8),
         new THREE.MeshBasicMaterial({
-          color: 0xff0000,
+          color: 0x0000ff,
           opacity: 0.25,
           transparent: true
         }));
@@ -138,25 +138,30 @@
       }));
       scene.add(circle);
 
-      pos = new THREE.Vector3(50, 50, 0);
-      vel = new THREE.Vector3(10, 21);
+      pos = new THREE.Vector3(-50, 50, 0);
+      vel = new THREE.Vector3(-10, -15, 0);
 
 
       scene.add(circle);
-      let wall = new THREE.Mesh(new THREE.BoxGeometry(10, 180, 20), new THREE.MeshNormalMaterial());
+
+      var wallMash = new THREE.MeshBasicMaterial({
+        color: 0x00ff00
+      });
+
+      let wall = new THREE.Mesh(new THREE.BoxGeometry(10, 180, 20), wallMash);
       wall.position.set(85, 0, 0);
       scene.add(wall);
 
-      let wall2 = new THREE.Mesh(new THREE.BoxGeometry(10, 180, 20), new THREE.MeshNormalMaterial());
+      let wall2 = new THREE.Mesh(new THREE.BoxGeometry(10, 180, 20), wallMash);
       wall2.position.set(-85, 0, 0);
       scene.add(wall2);
 
-      let wall3 = new THREE.Mesh(new THREE.BoxGeometry(10, 160, 20), new THREE.MeshNormalMaterial());
+      let wall3 = new THREE.Mesh(new THREE.BoxGeometry(10, 160, 20), wallMash);
       wall3.position.set(0, -85, 0);
       wall3.rotation.z = Math.PI / 2
       scene.add(wall3);
 
-      let wall4 = new THREE.Mesh(new THREE.BoxGeometry(10, 160, 20), new THREE.MeshNormalMaterial());
+      let wall4 = new THREE.Mesh(new THREE.BoxGeometry(10, 160, 20), wallMash);
       wall4.position.set(0, 85, 0);
       wall4.rotation.z = Math.PI / 2
       scene.add(wall4);
@@ -168,7 +173,7 @@
       $('#container').on("pointermove", onMouseMove);
       $('#container').on("pointerup", onMouseUp);
 
-      theBox = null;
+      onHand = null;
     }
 
     function onWindowResize() {
@@ -186,21 +191,21 @@
 
       raycaster.setFromCamera(mouse, camera);
 
-      var intersects = raycaster.intersectObjects(boxs);
+      var intersects = raycaster.intersectObject(box);
       if (intersects.length > 0) {
-        theBox = intersects[0].object;
+        onHand = intersects[0].object;
       }
 
     }
 
     function onMouseUp(event) {
-      theBox = null;
+      onHand = null;
     }
 
 
     function onMouseMove(event) {
       event.preventDefault();
-      if (theBox === null) return;
+      if (onHand === null) return;
 
       var viewportPos = $('#container').get(0).getBoundingClientRect();
       mouse.x = ((event.clientX - viewportPos.left) / $('#container').innerWidth()) * 2 - 1;
@@ -209,7 +214,7 @@
       raycaster.setFromCamera(mouse, camera);
       var intersects = raycaster.intersectObject(plane);
       if (intersects.length > 0) {
-        theBox.position.copy(intersects[0].point);
+        onHand.position.copy(intersects[0].point);
       }
 
     }
@@ -243,7 +248,7 @@
 
       requestAnimationFrame(animate);
       render();
-      var dt = 0.0005;
+      var dt = 0.005;
       pos.add(vel.clone().multiplyScalar(dt));
 
       r2 = r * -1  //在算式裡用+的有時候會變字串 
@@ -271,6 +276,7 @@
       maxy = box.position.y + 10;
       posx = pos.x;
       posy = pos.y;
+
       circle.position.copy(pos);
 
       animate.takeTime++;
