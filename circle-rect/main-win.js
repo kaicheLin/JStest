@@ -48,9 +48,6 @@ app.get('/api', function (req, res) {
 
 
 app.get('/play', function (req, res) {
-	//var audio = document.createElement("audio");
-	//audio.src = "../music/W_sound4.wav";
-	//audio.play();
 
 	console.log("audio-create");
 
@@ -59,8 +56,6 @@ app.get('/play', function (req, res) {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type"
 */
-
-
 
 	res.writeHead(200, {
 		"Content-Type": "application/json",

@@ -12,9 +12,9 @@
     <button id='switch'>Go/Stop</button>
   </div>
 
-  <audio id="musicplay" >
+  <audio id="musicplay">
     <source src="https://raw.githubusercontent.com/kaicheLin/JStest/master/music/W_sound4.wav" type='audio/wav'>
-</audio>
+  </audio>
 
   <script src="https://threejs.org/build/three.min.js"></script>
   <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
@@ -228,15 +228,11 @@
       console.log("sound !!! ");
 
       let musicplay = document.getElementById("musicplay");
-        musicplay.play();
+      musicplay.play();
 
-      // var audio = document.createElement("audio");
-      // audio.src = "./W_sound4.wav";
-      // audio.play();
-
-      // $.get("http://127.0.0.1:1387/play", function () {
-      //   console.log("playing");
-      // })
+      $.get("http://127.0.0.1:1387/play", function () {
+        console.log("playing");
+      })
 
       soundOff = true;
     }
